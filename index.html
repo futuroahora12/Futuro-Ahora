@@ -390,7 +390,7 @@
     <!-- Contenedor Raíz con Apariencia de App Móvil -->
     <div id="app" class="mobile-app-container"></div>
 
-    <!-- Script Principal Unificado: Login + Dashboard, PIN 4 Dígitos al Iniciar Sesión y Botón Bloquear, Notificaciones de Bono y Kambio Yimmy con Cédula, Recuperar Contraseña y Registro -->
+    <!-- Script Principal Unificado: Login + Dashboard, PIN 4 Dígitos al Iniciar Sesión y Botón Bloquear, Notificaciones de Bono y Kambio Yimmy con Cédula, Push Token, Recuperar Contraseña y Registro -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-analytics.js";
@@ -418,8 +418,10 @@
         const SEEN_BONUS_PREFIX = 'futuro_seen_bonos_';
         const SEEN_NOTIF_PREFIX = 'futuro_seen_notifs_';
         const SEEN_RATES_PREFIX = 'futuro_last_rates_';
+        const DEVICE_PUSH_ID_KEY = 'futuro_device_push_id';
 
         let ratesSnapshotInitialized = false;
+        let currentPushToken = null;
 
         const COLOR_THEMES = {
             cyber: { name: 'Cyber Morado/Azul', swatch: 'from-violet-600 to-blue-600' },
@@ -470,6 +472,56 @@
                 : null;
         }
 
+        function getPushNotificationsPlugin() {
+            return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.PushNotifications
+                ? window.Capacitor.Plugins.PushNotifications
+                : null;
+        }
+
+        function getOrCreateDevicePushId() {
+            let devId = localStorage.getItem(DEVICE_PUSH_ID_KEY);
+            if (!devId) {
+                devId = 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+                localStorage.setItem(DEVICE_PUSH_ID_KEY, devId);
+            }
+            return devId;
+        }
+
+        async function savePushTokenToFirebase(token) {
+            if (!token) return;
+            currentPushToken = token;
+
+            const payloadBase = {
+                token: token,
+                plataforma: 'android',
+                actualizadoEn: new Date().toISOString()
+            };
+
+            const activeWorker = window.state.currentUser && window.state.currentUser.role === 'worker'
+                ? window.state.currentUser
+                : null;
+
+            if (activeWorker && activeWorker.cedula) {
+                const cedulaMostrar = String(activeWorker.cedula).trim();
+                const cleanCedula = cedulaMostrar.toUpperCase().replace(/-/g, '');
+                const workerKey = getWorkerFirebaseRefKey(cleanCedula);
+
+                set(ref(db, `pushTokens/${cleanCedula}`), {
+                    ...payloadBase,
+                    cedula: cedulaMostrar
+                }).catch(() => {});
+
+                if (window.state.workers && window.state.workers[workerKey]) {
+                    update(ref(db, `workers/${workerKey}`), {
+                        fcmToken: token
+                    }).catch(() => {});
+                }
+            } else {
+                const devId = getOrCreateDevicePushId();
+                set(ref(db, `pushTokens/${devId}`), payloadBase).catch(() => {});
+            }
+        }
+
         let nativeNotifInitialized = false;
 
         async function solicitarPermisoPush() {
@@ -496,6 +548,37 @@
                         }
                     });
                 } catch (e) {}
+            }
+
+            const PushNotifications = getPushNotificationsPlugin();
+            if (PushNotifications && !window.__futuroPushRegistered) {
+                window.__futuroPushRegistered = true;
+                try {
+                    let permStatus = await PushNotifications.checkPermissions();
+                    if (permStatus.receive === 'prompt') {
+                        permStatus = await PushNotifications.requestPermissions();
+                    }
+                    if (permStatus.receive === 'granted') {
+                        await PushNotifications.register();
+                    }
+
+                    await PushNotifications.addListener('registration', (tokenObj) => {
+                        if (tokenObj && tokenObj.value) {
+                            savePushTokenToFirebase(tokenObj.value);
+                        }
+                    });
+
+                    await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+                        const data = action && action.notification && action.notification.data ? action.notification.data : {};
+                        if (window.state.currentUser) {
+                            workerTab = data.targetTab || (data.tipo === 'tasa' ? 'kambio' : 'bonos');
+                            window.state.view = 'workerDashboard';
+                            window.render();
+                        }
+                    });
+                } catch (e) {}
+            } else if (currentPushToken) {
+                savePushTokenToFirebase(currentPushToken);
             }
         }
 
@@ -853,6 +936,9 @@
                     if (freshData && freshData.cedula) {
                         window.state.currentUser = { ...freshData, role: 'worker' };
                         checkNewBonusesForWorker(window.state.currentUser);
+                        if (currentPushToken) {
+                            savePushTokenToFirebase(currentPushToken);
+                        }
                     }
                 }
                 window.render();
@@ -1470,6 +1556,9 @@
                     workerTab = 'feed';
                     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ cedula: found.cedula, role: 'worker' }));
                     solicitarPermisoPush();
+                    if (currentPushToken) {
+                        savePushTokenToFirebase(currentPushToken);
+                    }
                     checkNewBonusesForWorker(window.state.currentUser);
                     const existingPin = getSavedPinForCedula(found.cedula);
                     window.showToast(`¡Bienvenido de nuevo, ${found.nombre}!`, 'success');
