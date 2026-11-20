@@ -24,13 +24,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Preparar carpeta web
-        run: npm run copy-web
+      - name: Preparar carpeta web y descargar logo oficial
+        run: |
+          npm run copy-web
+          mkdir -p assets
+          curl -L "https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png" -o assets/logo.png
 
       - name: Instalar Capacitor y generar proyecto Android
         run: |
           npm install
+          npm install -D @capacitor/assets
           npx cap add android
+          npx capacitor-assets generate --android --iconBackgroundColor '#FFFFFF' --splashBackgroundColor '#FFFFFF'
           npx cap sync android
 
       - name: Compilar APK Debug
