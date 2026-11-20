@@ -422,6 +422,7 @@
 
         let ratesSnapshotInitialized = false;
         let currentPushToken = null;
+        let initialSessionPinChecked = false;
 
         const COLOR_THEMES = {
             cyber: { name: 'Cyber Morado/Azul', swatch: 'from-violet-600 to-blue-600' },
@@ -464,6 +465,22 @@
                 return window.state.workers[workerKey];
             }
             return window.state.currentUser;
+        }
+
+        function applyStartupPinGateIfNeeded(cedula) {
+            if (!cedula || initialSessionPinChecked) return;
+            const savedPin = getSavedPinForCedula(cedula);
+            if (savedPin) {
+                initialSessionPinChecked = true;
+                window.state.pinError = '';
+                window.state.view = 'lockPin';
+            } else if (Object.keys(window.state.workers || {}).length > 0) {
+                initialSessionPinChecked = true;
+                window.state.pinError = '';
+                window.state.view = 'setupPin';
+            } else {
+                window.state.view = 'lockPin';
+            }
         }
 
         function getLocalNotificationsPlugin() {
@@ -697,6 +714,7 @@
             }
 
             savePinForCedula(cedula, pin1);
+            initialSessionPinChecked = true;
             window.state.pinError = '';
             window.state.view = 'workerDashboard';
             window.showToast('¡PIN de 4 dígitos establecido correctamente!', 'success');
@@ -715,6 +733,7 @@
             }
 
             if (enteredPin === savedPin) {
+                initialSessionPinChecked = true;
                 window.state.pinError = '';
                 window.state.view = 'workerDashboard';
                 window.showToast('Acceso concedido.', 'success');
@@ -912,6 +931,7 @@
         window.logoutWorker = function() {
             localStorage.removeItem(SESSION_STORAGE_KEY);
             sessionStorage.removeItem('futuro_current_user');
+            initialSessionPinChecked = false;
             window.state.currentUser = null;
             window.state.pinError = '';
             workerTab = 'feed';
@@ -935,6 +955,7 @@
                     const freshData = getActiveWorkerData();
                     if (freshData && freshData.cedula) {
                         window.state.currentUser = { ...freshData, role: 'worker' };
+                        applyStartupPinGateIfNeeded(window.state.currentUser.cedula);
                         checkNewBonusesForWorker(window.state.currentUser);
                         if (currentPushToken) {
                             savePushTokenToFirebase(currentPushToken);
@@ -1025,7 +1046,13 @@
                         localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ cedula: parsed.cedula, role: 'worker' }));
                         window.state.currentUser = { cedula: parsed.cedula, role: 'worker', nombre: 'Cargando...', apellido: '' };
                         workerTab = 'feed';
-                        window.state.view = 'workerDashboard';
+                        const savedPin = getSavedPinForCedula(parsed.cedula);
+                        if (savedPin) {
+                            initialSessionPinChecked = true;
+                            window.state.view = 'lockPin';
+                        } else {
+                            window.state.view = 'setupPin';
+                        }
                     }
                 } catch (e) {}
             }
@@ -1066,7 +1093,7 @@
                         <div>
                             <span class="text-[9px] font-black uppercase tracking-widest theme-pill px-3 py-0.5 rounded-full">Seguridad de la App</span>
                             <h2 class="text-lg font-black tracking-tight mt-2 title-gradient">Establecer PIN de 4 Dígitos</h2>
-                            <p class="text-[11px] opacity-75 mt-1">Tu sesión quedará abierta y podrás usar este PIN de 4 dígitos para acceder cuando bloquees la app.</p>
+                            <p class="text-[11px] opacity-75 mt-1">Tu sesión quedará abierta y podrás usar este PIN de 4 dígitos para acceder cuando bloquees o reabras la app.</p>
                         </div>
 
                         <form onsubmit="window.handleSetPin(event, '${cedula}')" class="space-y-3 text-left">
@@ -1399,7 +1426,7 @@
                                 </div>
                                 <div>
                                     <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider block mb-1 pl-1">Teléfono</label>
-                                    <input type="text" id="regTelefono" required placeholder="0412..." class="w-full neon-input rounded-2xl px-3.5 py-2.5 text-xs font-mono">
+                                    <input type="text" id="regTelefono" required placeholder="0412..." class="w-full neon-input rounded-2xl px-3 py-2.5 text-xs font-mono">
                                 </div>
                             </div>
 
@@ -1561,6 +1588,7 @@
                     }
                     checkNewBonusesForWorker(window.state.currentUser);
                     const existingPin = getSavedPinForCedula(found.cedula);
+                    initialSessionPinChecked = true;
                     window.showToast(`¡Bienvenido de nuevo, ${found.nombre}!`, 'success');
                     window.state.view = existingPin ? 'lockPin' : 'setupPin';
                     window.render();
