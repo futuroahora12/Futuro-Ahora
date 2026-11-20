@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#05040d">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="icon" type="image/png" href="https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png">
-    <link rel="apple-touch-icon" href="https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png">
-    <link rel="manifest" href="manifest.json">
     <title>Futuro Ahora | Banca Digital Corporativa</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -347,6 +343,7 @@
             border: 1px solid color-mix(in srgb, var(--theme-primary) 28%, #cbd5e1);
         }
 
+        /* Carcasa de App Móvil */
         .mobile-app-container {
             width: 100%;
             height: 100dvh;
@@ -393,13 +390,11 @@
     <!-- Contenedor Raíz con Apariencia de App Móvil -->
     <div id="app" class="mobile-app-container"></div>
 
-    <!-- Script Principal Unificado: Login + Dashboard, Recuperar Contraseña y Registro -->
+    <!-- Script Principal Unificado: Login + Dashboard, PIN 4 Dígitos al Iniciar Sesión y Botón Bloquear, Notificaciones de Bono y Kambio Yimmy con Cédula, Recuperar Contraseña y Registro -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-analytics.js";
         import { getDatabase, ref, set, onValue, update, remove, push, runTransaction, get, child } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
-
-        const OFFICIAL_LOGO_URL = "https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAee29RNZa3A-C-8APC1x_yMzViMgR7bBA",
@@ -413,14 +408,18 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        try {
-            if (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) {
-                getAnalytics(app);
-            }
-        } catch (e) {}
+        const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
         window.fb = { db, ref, set, onValue, update, remove, push, runTransaction, get, child };
+
+        const SESSION_STORAGE_KEY = 'futuro_persistent_session';
+        const PIN_STORAGE_PREFIX = 'futuro_pin_';
+        const SEEN_BONUS_PREFIX = 'futuro_seen_bonos_';
+        const SEEN_NOTIF_PREFIX = 'futuro_seen_notifs_';
+        const SEEN_RATES_PREFIX = 'futuro_last_rates_';
+
+        let ratesSnapshotInitialized = false;
 
         const COLOR_THEMES = {
             cyber: { name: 'Cyber Morado/Azul', swatch: 'from-violet-600 to-blue-600' },
@@ -441,17 +440,271 @@
             window.render();
         };
 
-        function solicitarPermisoPush() {
+        function getWorkerFirebaseRefKey(cedula) {
+            if (!cedula) return cedula;
+            const cleanSearch = cedula.trim().toUpperCase().replace(/-/g, '');
+            if (window.state.workers[cedula]) return cedula;
+            let foundKey = null;
+            Object.entries(window.state.workers || {}).forEach(([key, w]) => {
+                const dbCedula = w && w.cedula ? w.cedula.trim().toUpperCase().replace(/-/g, '') : '';
+                if (key.toUpperCase().replace(/-/g, '') === cleanSearch || dbCedula === cleanSearch) {
+                    foundKey = key;
+                }
+            });
+            return foundKey || cedula;
+        }
+
+        function getActiveWorkerData() {
+            if (!window.state.currentUser) return null;
+            let cedula = window.state.currentUser.cedula;
+            const workerKey = getWorkerFirebaseRefKey(cedula);
+            if (window.state.workers[workerKey]) {
+                return window.state.workers[workerKey];
+            }
+            return window.state.currentUser;
+        }
+
+        function getLocalNotificationsPlugin() {
+            return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications
+                ? window.Capacitor.Plugins.LocalNotifications
+                : null;
+        }
+
+        let nativeNotifInitialized = false;
+
+        async function solicitarPermisoPush() {
             if ("Notification" in window && Notification.permission !== "granted") {
-                Notification.requestPermission();
+                try {
+                    await Notification.requestPermission();
+                } catch (e) {}
+            }
+
+            const LocalNotifications = getLocalNotificationsPlugin();
+            if (LocalNotifications && !nativeNotifInitialized) {
+                nativeNotifInitialized = true;
+                try {
+                    const perm = await LocalNotifications.checkPermissions();
+                    if (perm.display !== 'granted') {
+                        await LocalNotifications.requestPermissions();
+                    }
+                    await LocalNotifications.addListener('localNotificationActionPerformed', (event) => {
+                        const extra = event && event.notification && event.notification.extra ? event.notification.extra : {};
+                        if (window.state.currentUser) {
+                            workerTab = extra.targetTab || 'bonos';
+                            window.state.view = 'workerDashboard';
+                            window.render();
+                        }
+                    });
+                } catch (e) {}
             }
         }
 
-        function lanzarPushNativo(titulo, mensaje) {
+        async function lanzarPushNativo(titulo, mensaje, targetTab = 'bonos') {
             if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(titulo, {
-                    body: mensaje,
-                    icon: OFFICIAL_LOGO_URL
+                try {
+                    new Notification(titulo, {
+                        body: mensaje,
+                        icon: "https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png"
+                    });
+                } catch (e) {}
+            }
+
+            const LocalNotifications = getLocalNotificationsPlugin();
+            if (LocalNotifications) {
+                try {
+                    const notifId = Math.floor(Date.now() % 2147483000) + 1;
+                    await LocalNotifications.schedule({
+                        notifications: [
+                            {
+                                id: notifId,
+                                title: String(titulo || 'Futuro Ahora').slice(0, 90),
+                                body: String(mensaje || 'Tienes una nueva actualización.').slice(0, 220),
+                                schedule: { at: new Date(Date.now() + 200) },
+                                extra: { targetTab }
+                            }
+                        ]
+                    });
+                } catch (e) {}
+            }
+        }
+
+        function checkRateChangesNotification(val) {
+            if (!val) return;
+            const newBcv = val.tasaBcv ? parseFloat(val.tasaBcv) : window.state.tasaBcv;
+            const newEuro = val.tasaEuroBcv ? parseFloat(val.tasaEuroBcv) : window.state.tasaEuroBcv;
+            const newUsdt = val.tasaUsdt ? parseFloat(val.tasaUsdt) : window.state.tasaUsdt;
+
+            const currentSignature = `${newBcv.toFixed(2)}|${newEuro.toFixed(2)}|${newUsdt.toFixed(2)}`;
+            const activeWorker = window.state.currentUser && window.state.currentUser.role === 'worker' ? window.state.currentUser : null;
+            const cedulaMostrar = activeWorker && activeWorker.cedula ? String(activeWorker.cedula).trim() : '';
+            const cleanCedula = cedulaMostrar ? cedulaMostrar.toUpperCase().replace(/-/g, '') : 'global';
+            const storageKey = SEEN_RATES_PREFIX + cleanCedula;
+            const prevSignature = localStorage.getItem(storageKey);
+
+            if (!ratesSnapshotInitialized) {
+                ratesSnapshotInitialized = true;
+                if (!prevSignature) {
+                    localStorage.setItem(storageKey, currentSignature);
+                    return;
+                }
+            }
+
+            if (prevSignature && prevSignature !== currentSignature) {
+                localStorage.setItem(storageKey, currentSignature);
+                const titulo = 'Kambio Yimmy • Tasa BCV Actualizada';
+                const cedulaSuffix = cedulaMostrar ? ` • CI: ${cedulaMostrar}` : '';
+                const mensaje = `Tasa BCV: ${newBcv.toFixed(2)} Bs | Euro: ${newEuro.toFixed(2)} Bs | USDT: ${newUsdt.toFixed(2)} Bs${cedulaSuffix}`;
+
+                window.showToast(mensaje, 'info');
+                if (activeWorker) {
+                    lanzarPushNativo(titulo, mensaje, 'kambio');
+                }
+            } else if (!prevSignature) {
+                localStorage.setItem(storageKey, currentSignature);
+            }
+        }
+
+        function getSavedPinForCedula(cedula) {
+            if (!cedula) return null;
+            const clean = cedula.trim().toUpperCase().replace(/-/g, '');
+            const workerKey = getWorkerFirebaseRefKey(clean);
+            const workerObj = window.state.workers[workerKey] || window.state.workers[clean];
+            if (workerObj && workerObj.pinBloqueo && /^\d{4}$/.test(String(workerObj.pinBloqueo))) {
+                return String(workerObj.pinBloqueo);
+            }
+            const localPin = localStorage.getItem(PIN_STORAGE_PREFIX + clean);
+            return localPin && /^\d{4}$/.test(localPin) ? localPin : null;
+        }
+
+        function savePinForCedula(cedula, pin) {
+            const clean = cedula.trim().toUpperCase().replace(/-/g, '');
+            const workerKey = getWorkerFirebaseRefKey(clean);
+            localStorage.setItem(PIN_STORAGE_PREFIX + clean, pin);
+            if (window.state.workers[workerKey]) {
+                window.state.workers[workerKey].pinBloqueo = pin;
+                window.fb.update(window.fb.ref(window.fb.db, `workers/${workerKey}`), { pinBloqueo: pin }).catch(() => {});
+            }
+        }
+
+        window.lockAppNow = function() {
+            if (!window.state.currentUser || window.state.currentUser.role !== 'worker') return;
+            const cedula = window.state.currentUser.cedula;
+            const savedPin = getSavedPinForCedula(cedula);
+            window.state.pinError = '';
+            window.state.view = savedPin ? 'lockPin' : 'setupPin';
+            window.render();
+            setTimeout(() => {
+                const inp = document.getElementById(savedPin ? 'unlockPinInput' : 'setupPinInput');
+                if (inp) inp.focus();
+            }, 40);
+        };
+
+        window.handleSetPin = function(e, cedula) {
+            e.preventDefault();
+            const pin1 = (document.getElementById('setupPinInput')?.value || '').trim();
+            const pin2 = (document.getElementById('setupPinConfirmInput')?.value || '').trim();
+
+            if (!/^\d{4}$/.test(pin1)) {
+                window.showToast('El PIN debe tener exactamente 4 números.', 'error');
+                return;
+            }
+            if (pin1 !== pin2) {
+                window.showToast('Los dos PIN de 4 dígitos no coinciden.', 'error');
+                return;
+            }
+
+            savePinForCedula(cedula, pin1);
+            window.state.pinError = '';
+            window.state.view = 'workerDashboard';
+            window.showToast('¡PIN de 4 dígitos establecido correctamente!', 'success');
+            window.render();
+        };
+
+        window.handleUnlockWithPin = function(e, cedula) {
+            e.preventDefault();
+            const enteredPin = (document.getElementById('unlockPinInput')?.value || '').trim();
+            const savedPin = getSavedPinForCedula(cedula);
+
+            if (!savedPin) {
+                window.state.view = 'setupPin';
+                window.render();
+                return;
+            }
+
+            if (enteredPin === savedPin) {
+                window.state.pinError = '';
+                window.state.view = 'workerDashboard';
+                window.showToast('Acceso concedido.', 'success');
+                window.render();
+            } else {
+                window.state.pinError = 'PIN incorrecto. Intenta de nuevo.';
+                window.render();
+                setTimeout(() => {
+                    const inp = document.getElementById('unlockPinInput');
+                    if (inp) inp.focus();
+                }, 40);
+            }
+        };
+
+        window.handleChangePin = function(e, cedula) {
+            e.preventDefault();
+            const currentPin = (document.getElementById('currentPinInput')?.value || '').trim();
+            const newPin = (document.getElementById('newPinInput')?.value || '').trim();
+            const confirmPin = (document.getElementById('confirmNewPinInput')?.value || '').trim();
+            const savedPin = getSavedPinForCedula(cedula);
+
+            if (savedPin && currentPin !== savedPin) {
+                window.showToast('Tu PIN actual es incorrecto.', 'error');
+                return;
+            }
+            if (!/^\d{4}$/.test(newPin)) {
+                window.showToast('El nuevo PIN debe ser de 4 dígitos numéricos.', 'error');
+                return;
+            }
+            if (newPin !== confirmPin) {
+                window.showToast('La confirmación del nuevo PIN no coincide.', 'error');
+                return;
+            }
+
+            savePinForCedula(cedula, newPin);
+            e.target.reset();
+            window.showToast('PIN de 4 dígitos actualizado.', 'success');
+        };
+
+        function checkNewBonusesForWorker(workerObj) {
+            if (!workerObj || !workerObj.cedula) return;
+            const cedulaMostrar = String(workerObj.cedula).trim();
+            const cleanCedula = cedulaMostrar.toUpperCase().replace(/-/g, '');
+            const bonos = workerObj.bonosAsignados || workerObj.bonos || {};
+            const bonusKeys = Object.keys(bonos).filter(k => bonos[k] && typeof bonos[k] === 'object');
+
+            const storageKey = SEEN_BONUS_PREFIX + cleanCedula;
+            let seenKeys = [];
+            try {
+                seenKeys = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                if (!Array.isArray(seenKeys)) seenKeys = [];
+            } catch (e) {
+                seenKeys = [];
+            }
+
+            if (seenKeys.length === 0 && bonusKeys.length > 0) {
+                localStorage.setItem(storageKey, JSON.stringify(bonusKeys));
+                return;
+            }
+
+            const newBonusKeys = bonusKeys.filter(k => !seenKeys.includes(k));
+            if (newBonusKeys.length > 0) {
+                const updated = Array.from(new Set([...seenKeys, ...newBonusKeys]));
+                localStorage.setItem(storageKey, JSON.stringify(updated));
+
+                newBonusKeys.forEach(k => {
+                    const b = bonos[k];
+                    const nombreBono = b.nombre || 'Bono Corporativo';
+                    const montoTexto = b.monto ? ` por ${parseFloat(b.monto).toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs.` : '';
+                    const titulo = `Futuro Ahora • ¡Te llegó un bono!`;
+                    const mensaje = `${nombreBono}${montoTexto}. Entra a la app para aceptarlo • CI: ${cedulaMostrar}`;
+                    window.showToast(mensaje, 'success');
+                    lanzarPushNativo(titulo, mensaje, 'bonos');
                 });
             }
         }
@@ -516,6 +769,7 @@
             view: 'loginWorker',
             colorTheme: 'cyber',
             currentUser: null,
+            pinError: '',
             recoverTargetKey: null,
             tempRegisterData: null,
             whitelistCedulas: {},
@@ -572,61 +826,11 @@
             window.render();
         };
 
-        function getWorkerFirebaseRefKey(cedula) {
-            if (!cedula) return cedula;
-            const cleanSearch = cedula.trim().toUpperCase().replace(/-/g, '');
-            if (window.state.workers[cedula]) return cedula;
-            let foundKey = null;
-            Object.entries(window.state.workers || {}).forEach(([key, w]) => {
-                const dbCedula = w && w.cedula ? w.cedula.trim().toUpperCase().replace(/-/g, '') : '';
-                if (key.toUpperCase().replace(/-/g, '') === cleanSearch || dbCedula === cleanSearch) {
-                    foundKey = key;
-                }
-            });
-            return foundKey || cedula;
-        }
-
-        function getActiveWorkerData() {
-            if (!window.state.currentUser) return null;
-            let cedula = window.state.currentUser.cedula;
-            const workerKey = getWorkerFirebaseRefKey(cedula);
-            if (window.state.workers[workerKey]) {
-                return window.state.workers[workerKey];
-            }
-            return window.state.currentUser;
-        }
-
-        let inactivityTimer;
-        const INACTIVITY_TIME = 3 * 60 * 1000;
-
-        function resetInactivityTimer() {
-            clearTimeout(inactivityTimer);
-            if (!window.state.currentUser) return;
-            inactivityTimer = setTimeout(() => {
-                cerrarSesionPorInactividad();
-            }, INACTIVITY_TIME);
-        }
-
-        function initInactivityTimer() {
-            window.addEventListener('mousemove', resetInactivityTimer);
-            window.addEventListener('keypress', resetInactivityTimer);
-            window.addEventListener('click', resetInactivityTimer);
-            window.addEventListener('scroll', resetInactivityTimer);
-            resetInactivityTimer();
-        }
-
-        function cerrarSesionPorInactividad() {
-            sessionStorage.removeItem('futuro_current_user');
-            window.state.currentUser = null;
-            workerTab = 'feed';
-            window.state.view = 'loginWorker';
-            window.showToast('Sesión cerrada por inactividad de seguridad.', 'error');
-            window.render();
-        }
-
         window.logoutWorker = function() {
+            localStorage.removeItem(SESSION_STORAGE_KEY);
             sessionStorage.removeItem('futuro_current_user');
             window.state.currentUser = null;
+            window.state.pinError = '';
             workerTab = 'feed';
             window.state.view = 'loginWorker';
             window.render();
@@ -646,9 +850,9 @@
                 window.state.workers = snapshot.val() || {};
                 if (window.state.currentUser && window.state.currentUser.role === 'worker') {
                     const freshData = getActiveWorkerData();
-                    if (freshData) {
-                        window.state.currentUser = freshData;
-                        window.state.currentUser.role = 'worker';
+                    if (freshData && freshData.cedula) {
+                        window.state.currentUser = { ...freshData, role: 'worker' };
+                        checkNewBonusesForWorker(window.state.currentUser);
                     }
                 }
                 window.render();
@@ -667,9 +871,17 @@
                 window.state.notifications = snapshot.val() || {};
                 if (window.state.currentUser && window.state.currentUser.role === 'worker') {
                     const cedulaKey = window.state.currentUser.cedula;
+                    const cleanCedula = String(cedulaKey).trim().toUpperCase().replace(/-/g, '');
                     const notifs = window.state.notifications[cedulaKey] || window.state.notifications[getWorkerFirebaseRefKey(cedulaKey)] || [];
                     if (notifs.length > 0 && !notifs[0].leida) {
-                        lanzarPushNativo(notifs[0].titulo, notifs[0].mensaje);
+                        const notifKey = SEEN_NOTIF_PREFIX + cleanCedula;
+                        const lastNotifSig = `${notifs[0].titulo || ''}|${notifs[0].mensaje || ''}|${notifs[0].fecha || ''}`;
+                        if (localStorage.getItem(notifKey) !== lastNotifSig) {
+                            localStorage.setItem(notifKey, lastNotifSig);
+                            const esBono = /bono/i.test(`${notifs[0].titulo || ''} ${notifs[0].mensaje || ''}`);
+                            const msgConCedula = `${notifs[0].mensaje || ''} • CI: ${cedulaKey}`.trim();
+                            lanzarPushNativo(notifs[0].titulo, msgConCedula, esBono ? 'bonos' : 'notif');
+                        }
                     }
                 }
                 window.render();
@@ -698,6 +910,8 @@
                     if (val.tasaEuroBcv) window.state.tasaEuroBcv = parseFloat(val.tasaEuroBcv);
                     if (val.tasaUsdt) window.state.tasaUsdt = parseFloat(val.tasaUsdt);
                     window.state.config.cardImageUrl = 'https://i.postimg.cc/Lsyf7HM5/Screenshot-20261113-123853-Ub-App.png';
+                    checkRateChangesNotification(val);
+                    window.render();
                 }
             });
         }
@@ -717,13 +931,17 @@
                 document.documentElement.setAttribute('data-theme', savedColorTheme);
             }
 
-            const savedUser = sessionStorage.getItem('futuro_current_user');
-            if (savedUser) {
-                const parsed = JSON.parse(savedUser);
-                window.state.currentUser = { cedula: parsed.cedula, role: 'worker', nombre: 'Cargando...', apellido: '' };
-                workerTab = 'feed';
-                window.state.view = 'workerDashboard';
-                initInactivityTimer();
+            const savedSession = localStorage.getItem(SESSION_STORAGE_KEY) || sessionStorage.getItem('futuro_current_user');
+            if (savedSession) {
+                try {
+                    const parsed = JSON.parse(savedSession);
+                    if (parsed && parsed.cedula) {
+                        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ cedula: parsed.cedula, role: 'worker' }));
+                        window.state.currentUser = { cedula: parsed.cedula, role: 'worker', nombre: 'Cargando...', apellido: '' };
+                        workerTab = 'feed';
+                        window.state.view = 'workerDashboard';
+                    }
+                } catch (e) {}
             }
             initFirebaseListeners();
             window.render();
@@ -736,6 +954,8 @@
 
             const s = window.state;
             if (s.view === 'loginWorker') appDiv.innerHTML = renderLoginWorker();
+            else if (s.view === 'setupPin') appDiv.innerHTML = renderSetupPin(s.currentUser);
+            else if (s.view === 'lockPin') appDiv.innerHTML = renderLockPin(s.currentUser);
             else if (s.view === 'registerWorker') appDiv.innerHTML = renderRegisterWorker();
             else if (s.view === 'verifyRegisterCode') appDiv.innerHTML = renderVerifyRegisterCode();
             else if (s.view === 'forgotPassword') appDiv.innerHTML = renderForgotPassword();
@@ -747,6 +967,80 @@
                 if (walletTab === 'balance') setTimeout(initWalletChart, 100);
             }
         };
+
+        // ================= PANTALLAS DE PIN DE 4 DÍGITOS ================= //
+        function renderSetupPin(user) {
+            const cedula = user ? user.cedula : '';
+            return `
+                <div class="flex-1 flex flex-col justify-center p-5 safe-top safe-bottom app-surface-bg overflow-y-auto">
+                    <div class="glass-panel p-6 rounded-[2rem] shadow-2xl relative cyber-glow my-auto space-y-4 text-center">
+                        <div class="w-14 h-14 rounded-2xl theme-pill flex items-center justify-center mx-auto text-xl shadow-lg">
+                            <i class="fa-solid fa-shield-lock"></i>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-black uppercase tracking-widest theme-pill px-3 py-0.5 rounded-full">Seguridad de la App</span>
+                            <h2 class="text-lg font-black tracking-tight mt-2 title-gradient">Establecer PIN de 4 Dígitos</h2>
+                            <p class="text-[11px] opacity-75 mt-1">Tu sesión quedará abierta y podrás usar este PIN de 4 dígitos para acceder cuando bloquees la app.</p>
+                        </div>
+
+                        <form onsubmit="window.handleSetPin(event, '${cedula}')" class="space-y-3 text-left">
+                            <div>
+                                <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider block mb-1 pl-1">Nuevo PIN (4 dígitos)</label>
+                                <input type="password" id="setupPinInput" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="••••" class="w-full neon-input rounded-2xl px-4 py-3 text-center text-xl tracking-[0.6em] font-mono font-black">
+                            </div>
+                            <div>
+                                <label class="text-[10px] label-secondary font-extrabold uppercase tracking-wider block mb-1 pl-1">Confirmar PIN (4 dígitos)</label>
+                                <input type="password" id="setupPinConfirmInput" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="••••" class="w-full neon-input rounded-2xl px-4 py-3 text-center text-xl tracking-[0.6em] font-mono font-black">
+                            </div>
+                            <button type="submit" class="w-full py-3.5 rounded-2xl neon-gradient-btn font-black text-xs transition mt-2 flex items-center justify-center gap-2">
+                                <span>GUARDAR PIN Y CONTINUAR</span>
+                                <i class="fa-solid fa-check text-[11px]"></i>
+                            </button>
+                        </form>
+
+                        <button type="button" onclick="window.logoutWorker()" class="text-[11px] font-bold text-rose-500 dark:text-rose-400 hover:underline">
+                            Cerrar sesión
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLockPin(user) {
+            const w = getActiveWorkerData() || user || {};
+            const cedula = w.cedula || '';
+            const pinErr = window.state.pinError || '';
+
+            return `
+                <div class="flex-1 flex flex-col justify-center p-5 safe-top safe-bottom app-surface-bg overflow-y-auto">
+                    <div class="glass-panel p-6 rounded-[2rem] shadow-2xl relative cyber-glow my-auto space-y-4 text-center">
+                        <div class="w-16 h-16 rounded-[1.35rem] overflow-hidden bg-white p-1 mx-auto shadow-xl border border-black/10">
+                            <img src="https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png" alt="Futuro Ahora Logo" class="w-full h-full object-contain rounded-[1rem]">
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-black uppercase tracking-widest theme-pill px-3 py-0.5 rounded-full">Sesión Guardada</span>
+                            <h2 class="text-lg font-black tracking-tight mt-2 title-gradient">${w.nombre && w.nombre !== 'Cargando...' ? w.nombre : 'Futuro Ahora'}</h2>
+                            <p class="text-[11px] opacity-75 mt-0.5">Coloca tu PIN de 4 dígitos para acceder</p>
+                        </div>
+
+                        <form onsubmit="window.handleUnlockWithPin(event, '${cedula}')" class="space-y-3">
+                            <input type="password" id="unlockPinInput" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required autofocus placeholder="••••" class="w-full neon-input rounded-2xl px-4 py-3.5 text-center text-2xl tracking-[0.65em] font-mono font-black">
+                            ${pinErr ? `<p class="text-[11px] font-bold text-rose-500 dark:text-rose-400">${pinErr}</p>` : ''}
+                            <button type="submit" class="w-full py-3.5 rounded-2xl neon-gradient-btn font-black text-xs transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-unlock"></i>
+                                <span>ACCEDER CON PIN</span>
+                            </button>
+                        </form>
+
+                        <div class="pt-1">
+                            <button type="button" onclick="window.logoutWorker()" class="text-[11px] font-bold text-rose-500 dark:text-rose-400 hover:underline">
+                                Cerrar sesión
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
 
         // ================= KAMBIO YIMMI ================= //
         window.updateDolarCard = function(source, val) {
@@ -837,6 +1131,7 @@
                         <span class="text-[10px] font-mono opacity-70">${fechaHoy}</span>
                     </div>
 
+                    <!-- Tarjeta Dólar BCV -->
                     <div class="glass-panel p-4 rounded-3xl space-y-2.5 cyber-glow">
                         <div class="flex items-center justify-between">
                             <span class="px-3.5 py-1 rounded-full neon-gradient-btn text-white text-[10px] font-black flex items-center gap-1.5">
@@ -858,6 +1153,7 @@
                         </div>
                     </div>
 
+                    <!-- Tarjeta Euro BCV -->
                     <div class="glass-panel p-4 rounded-3xl space-y-2.5 cyber-glow-blue">
                         <div class="flex items-center justify-between">
                             <span class="px-3.5 py-1 rounded-full neon-gradient-btn text-white text-[10px] font-black flex items-center gap-1.5">
@@ -879,6 +1175,7 @@
                         </div>
                     </div>
 
+                    <!-- Tarjeta USDT -->
                     <div class="glass-panel p-4 rounded-3xl space-y-2.5 cyber-glow">
                         <div class="flex items-center justify-between">
                             <span class="px-3.5 py-1 rounded-full neon-gradient-btn text-white text-[10px] font-black flex items-center gap-1.5">
@@ -903,10 +1200,11 @@
             `;
         }
 
-        // ================= VISTA DE AUTENTICACIÓN (LOGIN MÓVIL CON LOGO OFICIAL EN FONDO BLANCO) ================= //
+        // ================= VISTA DE AUTENTICACIÓN (LOGIN MÓVIL CON LOGO EN FONDO BLANCO) ================= //
         function renderLoginWorker() {
             return `
                 <div class="flex-1 flex flex-col justify-between p-4 safe-top safe-bottom app-surface-bg overflow-y-auto">
+                    <!-- Barra Superior tipo App Móvil -->
                     <div class="flex items-center justify-between gap-2 pt-1">
                         <button type="button" onclick="window.toggleDarkMode()" class="w-9 h-9 rounded-2xl icon-btn-neutral flex items-center justify-center text-xs transition" title="Cambiar Modo Claro/Oscuro">
                             <i class="fa-solid fa-moon dark:fa-sun"></i>
@@ -914,11 +1212,12 @@
                         <span class="text-[9px] font-black uppercase tracking-widest theme-pill px-3 py-1 rounded-full">Futuro Ahora</span>
                     </div>
 
+                    <!-- Tarjeta Central de Acceso -->
                     <div class="glass-panel p-5 rounded-[2rem] shadow-2xl relative cyber-glow my-auto space-y-4">
                         <div class="flex flex-col items-center text-center">
                             <div class="relative mb-3">
-                                <div class="w-16 h-16 rounded-[1.35rem] overflow-hidden bg-white p-1.5 shadow-xl border border-slate-200">
-                                    <img src="${OFFICIAL_LOGO_URL}" alt="Logo Oficial Futuro Ahora" class="w-full h-full object-contain rounded-[0.9rem]">
+                                <div class="w-16 h-16 rounded-[1.35rem] overflow-hidden bg-white p-1 shadow-xl border border-black/10">
+                                    <img src="https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png" alt="Futuro Ahora Logo" class="w-full h-full object-contain rounded-[1rem]">
                                 </div>
                                 <span class="w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0c0a1d] absolute -bottom-0.5 -right-0.5" title="En línea"></span>
                             </div>
@@ -962,6 +1261,7 @@
                         </div>
                     </div>
 
+                    <!-- Pie Móvil Discreto -->
                     <div class="text-center pb-1">
                         <a href="https://administracion.futuroahora.com" class="inline-flex items-center gap-1.5 text-[10px] font-bold opacity-75 hover:opacity-100 transition">
                             <i class="fa-solid fa-shield-halved text-emerald-500"></i>
@@ -1165,14 +1465,20 @@
                 });
 
                 if (found) {
-                    window.state.currentUser = found;
-                    window.state.currentUser.role = 'worker';
+                    window.state.currentUser = { ...found, role: 'worker' };
+                    window.state.pinError = '';
                     workerTab = 'feed';
-                    sessionStorage.setItem('futuro_current_user', JSON.stringify({ cedula: found.cedula, role: 'worker' }));
-                    initInactivityTimer();
+                    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ cedula: found.cedula, role: 'worker' }));
+                    solicitarPermisoPush();
+                    checkNewBonusesForWorker(window.state.currentUser);
+                    const existingPin = getSavedPinForCedula(found.cedula);
                     window.showToast(`¡Bienvenido de nuevo, ${found.nombre}!`, 'success');
-                    window.state.view = 'workerDashboard';
+                    window.state.view = existingPin ? 'lockPin' : 'setupPin';
                     window.render();
+                    setTimeout(() => {
+                        const inp = document.getElementById(existingPin ? 'unlockPinInput' : 'setupPinInput');
+                        if (inp) inp.focus();
+                    }, 40);
                 } else {
                     window.showToast('Credenciales incorrectas. Verifica tus datos.', 'error');
                     btn.disabled = false;
@@ -1849,13 +2155,14 @@
 
             return `
                 <div class="h-full app-surface-bg flex flex-col overflow-hidden">
+                    <!-- Top App Bar -->
                     <header class="app-topbar-bg safe-top backdrop-blur-xl border-b px-4 py-2.5 flex justify-between items-center shrink-0">
                         <div class="flex items-center space-x-2.5">
-                            <div class="w-9 h-9 rounded-2xl overflow-hidden bg-white p-1 flex items-center justify-center shadow-lg border border-slate-200">
-                                <img src="${OFFICIAL_LOGO_URL}" alt="Logo Oficial Futuro Ahora" class="w-full h-full object-contain rounded-[0.65rem]">
+                            <div class="w-9 h-9 rounded-2xl overflow-hidden bg-white p-1 flex items-center justify-center shadow-lg border border-black/10">
+                                <img src="https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png" alt="Futuro Ahora Logo" class="w-full h-full object-contain rounded-[11px]">
                             </div>
                             <div>
-                                <h3 class="font-black text-xs truncate max-w-[140px]">${currentWorkerData.nombre}</h3>
+                                <h3 class="font-black text-xs truncate max-w-[130px]">${currentWorkerData.nombre}</h3>
                                 <p class="text-[9px] label-secondary font-mono font-bold">CI: ${currentWorkerData.cedula}</p>
                             </div>
                         </div>
@@ -1864,12 +2171,17 @@
                             <button onclick="window.toggleDarkMode()" class="w-8 h-8 rounded-xl icon-btn-neutral text-xs font-bold hover:opacity-90 transition flex items-center justify-center" title="Cambiar Modo Claro/Oscuro">
                                 <i class="fa-solid fa-moon dark:fa-sun"></i>
                             </button>
+                            <button onclick="window.lockAppNow()" class="px-2.5 h-8 rounded-xl theme-pill text-[10px] font-black hover:opacity-90 transition flex items-center gap-1" title="Bloquear con PIN de 4 dígitos">
+                                <i class="fa-solid fa-lock text-[10px]"></i>
+                                <span>Bloquear</span>
+                            </button>
                             <button onclick="window.logoutWorker()" class="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-500 dark:text-rose-400 border border-rose-500/30 text-xs font-bold hover:bg-rose-500/25 transition flex items-center justify-center" title="Cerrar sesión">
                                 <i class="fa-solid fa-right-from-bracket"></i>
                             </button>
                         </div>
                     </header>
 
+                    <!-- Barra de Módulos Deslizables (Sin Metas) -->
                     <nav class="app-topbar-bg border-b px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
                         <button onclick="window.setWorkerTab('feed')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='feed'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-newspaper"></i> Feed</button>
                         <button onclick="window.setWorkerTab('kambio')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='kambio'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-coins"></i> Kambio</button>
@@ -1883,6 +2195,7 @@
                         <button onclick="window.setWorkerTab('perfil')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='perfil'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-gear"></i> Perfil</button>
                     </nav>
 
+                    <!-- Contenido Principal -->
                     <main class="flex-1 p-3.5 overflow-y-auto w-full">
                         ${workerTab === 'feed' ? renderWorkerFeed() : ''}
                         ${workerTab === 'kambio' ? renderKambioYimmiView() : ''}
@@ -1896,6 +2209,7 @@
                         ${workerTab === 'perfil' ? renderWorkerProfile(currentWorkerData) : ''}
                     </main>
 
+                    <!-- Barra Inferior de Navegación Móvil -->
                     <footer class="app-topbar-bg backdrop-blur-xl border-t px-2 pt-1.5 safe-bottom shrink-0 grid grid-cols-5 gap-1 text-center">
                         <button onclick="window.setWorkerTab('billetera')" class="flex flex-col items-center justify-center py-1.5 rounded-2xl transition ${workerTab==='billetera'?'label-secondary theme-pill':'opacity-70 hover:opacity-100'}">
                             <i class="fa-solid fa-wallet text-sm"></i>
@@ -1919,6 +2233,7 @@
                         </button>
                     </footer>
 
+                    <!-- MODAL DE EDICIÓN DE TARJETA UBII -->
                     ${window.state.showEditCardModal ? `
                         <div class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
                             <div class="glass-panel p-6 rounded-3xl max-w-sm w-full cyber-glow shadow-2xl relative space-y-4">
@@ -2028,6 +2343,7 @@
                             </div>
                         </div>
 
+                        <!-- Acciones Rápidas Móviles -->
                         <div class="grid grid-cols-3 gap-2">
                             <button onclick="window.setWalletTab('withdraw')" class="glass-panel p-3 rounded-2xl flex flex-col items-center gap-1.5 text-center hover:opacity-95 transition">
                                 <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-xs"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
@@ -2183,6 +2499,7 @@
             return html;
         }
 
+        // ================= CRÉDITO (PRÓXIMAMENTE), CARNET, CONSTANCIAS, SOPORTE, NOTIFICACIONES Y PERFIL ================= //
         function renderWorkerCredit(w) {
             return `
                 <div class="h-full flex flex-col justify-center items-center py-6 pb-10">
@@ -2295,10 +2612,21 @@
         function renderWorkerProfile(w) {
             return `
                 <div class="space-y-3.5 pb-6">
-                    <h2 class="text-base font-black px-1 title-gradient">Perfil & Apariencia</h2>
+                    <h2 class="text-base font-black px-1 title-gradient">Perfil & Seguridad</h2>
                     <div class="glass-panel p-4 rounded-3xl shadow-xl cyber-glow-blue space-y-2">
                         <p class="text-[10px] font-extrabold uppercase tracking-wider label-secondary">Tema de Color</p>
                         ${renderThemeSelectorBar()}
+                    </div>
+                    <div class="glass-panel p-5 rounded-3xl shadow-xl cyber-glow space-y-2.5">
+                        <h3 class="font-black text-xs label-primary uppercase">Cambiar PIN de 4 Dígitos</h3>
+                        <form onsubmit="window.handleChangePin(event, '${w.cedula}')" class="space-y-2">
+                            <input type="password" id="currentPinInput" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="PIN actual (4 dígitos)" class="w-full neon-input rounded-xl px-3 py-2 text-xs font-mono">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="password" id="newPinInput" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="Nuevo PIN" class="w-full neon-input rounded-xl px-3 py-2 text-xs font-mono">
+                                <input type="password" id="confirmNewPinInput" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="Confirmar PIN" class="w-full neon-input rounded-xl px-3 py-2 text-xs font-mono">
+                            </div>
+                            <button type="submit" class="w-full py-2.5 neon-gradient-btn font-black text-xs rounded-xl">ACTUALIZAR PIN</button>
+                        </form>
                     </div>
                     <div class="glass-panel p-5 rounded-3xl shadow-xl cyber-glow">
                         <form onsubmit="window.handleUpdateProfile(event, '${w.cedula}')" class="space-y-2.5">
