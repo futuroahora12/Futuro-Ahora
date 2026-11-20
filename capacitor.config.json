@@ -1,0 +1,9 @@
+{
+  "appId": "com.futuroahora.banca",
+  "appName": "Futuro Ahora",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
