@@ -1,0 +1,2336 @@
+<!DOCTYPE html>
+<html lang="es" class="dark" data-theme="cyber">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#05040d">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png">
+    <link rel="manifest" href="manifest.json">
+    <title>Futuro Ahora | Banca Digital Corporativa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyberDark: '#05040d',
+                        cyberCard: '#0c0a1d',
+                        cyberCardHover: '#15112e',
+                        cyberPrimary: 'var(--theme-primary, #8b5cf6)',
+                        cyberAccent: 'var(--theme-secondary, #3b82f6)',
+                        cyberCyan: '#06b6d4',
+                        cyberEmerald: '#10b981',
+                        cyberRose: '#f43f5e',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- EmailJS CDN -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- jsPDF para comprobantes y estados de cuenta descargables -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Chart.js para gráficas financieras -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.6.1/dist/chart.umd.min.js"></script>
+    <!-- Canvas Confetti para Animaciones de Éxito -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --theme-primary: #8b5cf6;
+            --theme-primary-dark: #6d28d9;
+            --theme-secondary: #3b82f6;
+            --theme-secondary-dark: #1d4ed8;
+            --theme-glow: rgba(139, 92, 246, 0.38);
+            --theme-glow-sec: rgba(59, 130, 246, 0.35);
+            --theme-border: rgba(139, 92, 246, 0.34);
+            --theme-pill-bg: rgba(59, 130, 246, 0.16);
+            --theme-pill-text: #93c5fd;
+        }
+
+        html[data-theme="cyber"] {
+            --theme-primary: #8b5cf6;
+            --theme-primary-dark: #6d28d9;
+            --theme-secondary: #3b82f6;
+            --theme-secondary-dark: #1d4ed8;
+            --theme-glow: rgba(139, 92, 246, 0.42);
+            --theme-glow-sec: rgba(59, 130, 246, 0.38);
+            --theme-border: rgba(139, 92, 246, 0.36);
+            --theme-pill-bg: rgba(59, 130, 246, 0.16);
+            --theme-pill-text: #93c5fd;
+        }
+
+        html[data-theme="emerald"] {
+            --theme-primary: #10b981;
+            --theme-primary-dark: #047857;
+            --theme-secondary: #06b6d4;
+            --theme-secondary-dark: #0e7490;
+            --theme-glow: rgba(16, 185, 129, 0.4);
+            --theme-glow-sec: rgba(6, 182, 212, 0.35);
+            --theme-border: rgba(16, 185, 129, 0.38);
+            --theme-pill-bg: rgba(16, 185, 129, 0.16);
+            --theme-pill-text: #6ee7b7;
+        }
+
+        html[data-theme="solar"] {
+            --theme-primary: #f59e0b;
+            --theme-primary-dark: #b45309;
+            --theme-secondary: #ec4899;
+            --theme-secondary-dark: #be185d;
+            --theme-glow: rgba(245, 158, 11, 0.4);
+            --theme-glow-sec: rgba(236, 72, 153, 0.35);
+            --theme-border: rgba(245, 158, 11, 0.38);
+            --theme-pill-bg: rgba(245, 158, 11, 0.16);
+            --theme-pill-text: #fcd34d;
+        }
+
+        html[data-theme="ruby"] {
+            --theme-primary: #f43f5e;
+            --theme-primary-dark: #be123c;
+            --theme-secondary: #8b5cf6;
+            --theme-secondary-dark: #6d28d9;
+            --theme-glow: rgba(244, 63, 94, 0.4);
+            --theme-glow-sec: rgba(139, 92, 246, 0.35);
+            --theme-border: rgba(244, 63, 94, 0.38);
+            --theme-pill-bg: rgba(244, 63, 94, 0.16);
+            --theme-pill-text: #fda4af;
+        }
+
+        html[data-theme="ocean"] {
+            --theme-primary: #0284c7;
+            --theme-primary-dark: #0369a1;
+            --theme-secondary: #4f46e5;
+            --theme-secondary-dark: #3730a3;
+            --theme-glow: rgba(2, 132, 199, 0.4);
+            --theme-glow-sec: rgba(79, 70, 229, 0.36);
+            --theme-border: rgba(56, 189, 248, 0.38);
+            --theme-pill-bg: rgba(2, 132, 199, 0.16);
+            --theme-pill-text: #7dd3fc;
+        }
+
+        html[data-theme="neon"] {
+            --theme-primary: #d946ef;
+            --theme-primary-dark: #a21caf;
+            --theme-secondary: #06b6d4;
+            --theme-secondary-dark: #0e7490;
+            --theme-glow: rgba(217, 70, 239, 0.42);
+            --theme-glow-sec: rgba(6, 182, 212, 0.38);
+            --theme-border: rgba(232, 121, 249, 0.38);
+            --theme-pill-bg: rgba(217, 70, 239, 0.16);
+            --theme-pill-text: #f5d0fe;
+        }
+
+        html[data-theme="gold"] {
+            --theme-primary: #eab308;
+            --theme-primary-dark: #a16207;
+            --theme-secondary: #ea580c;
+            --theme-secondary-dark: #9a3412;
+            --theme-glow: rgba(234, 179, 8, 0.4);
+            --theme-glow-sec: rgba(234, 88, 12, 0.35);
+            --theme-border: rgba(250, 204, 21, 0.38);
+            --theme-pill-bg: rgba(234, 179, 8, 0.16);
+            --theme-pill-text: #fef08a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 15% 10%, var(--theme-glow), transparent 48%),
+                        radial-gradient(circle at 85% 90%, var(--theme-glow-sec), transparent 48%),
+                        #030208;
+            color: #f3f4f6;
+            overscroll-behavior-y: contain;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.3s ease, color 0.25s ease;
+        }
+
+        html:not(.dark) body {
+            background: radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--theme-primary) 18%, transparent), transparent 50%),
+                        radial-gradient(circle at 85% 90%, color-mix(in srgb, var(--theme-secondary) 16%, transparent), transparent 50%),
+                        #eef2ff;
+            color: #0f172a;
+        }
+
+        ::-webkit-scrollbar { width: 3px; height: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--theme-primary), var(--theme-secondary));
+            border-radius: 9999px;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .app-surface-bg {
+            background: linear-gradient(180deg, color-mix(in srgb, var(--theme-primary) 16%, #060512) 0%, #060716 55%, #040510 100%);
+        }
+        html:not(.dark) .app-surface-bg {
+            background: linear-gradient(180deg, color-mix(in srgb, var(--theme-primary) 12%, #f8faff) 0%, #f1f5ff 60%, #e8efff 100%);
+        }
+
+        .app-topbar-bg {
+            background: rgba(12, 10, 29, 0.92);
+            border-color: var(--theme-border);
+        }
+        html:not(.dark) .app-topbar-bg {
+            background: rgba(255, 255, 255, 0.92);
+            border-color: color-mix(in srgb, var(--theme-primary) 28%, transparent);
+        }
+
+        .glass-panel {
+            background: linear-gradient(160deg, rgba(20, 15, 46, 0.92) 0%, rgba(9, 12, 28, 0.96) 100%);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid var(--theme-border);
+            color: #f3f4f6;
+        }
+        html:not(.dark) .glass-panel {
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.97) 0%, rgba(244, 247, 255, 0.99) 100%);
+            border: 1px solid color-mix(in srgb, var(--theme-primary) 26%, transparent);
+            color: #0f172a;
+            box-shadow: 0 12px 30px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+        }
+
+        .title-gradient {
+            background: linear-gradient(90deg, #ffffff 0%, var(--theme-pill-text) 55%, var(--theme-primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        html:not(.dark) .title-gradient {
+            background: linear-gradient(90deg, #0f172a 0%, var(--theme-primary-dark) 58%, var(--theme-secondary-dark) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .label-primary {
+            color: var(--theme-pill-text);
+        }
+        html:not(.dark) .label-primary {
+            color: var(--theme-primary-dark);
+        }
+
+        .label-secondary {
+            color: var(--theme-secondary);
+        }
+        html:not(.dark) .label-secondary {
+            color: var(--theme-secondary-dark);
+        }
+
+        .theme-pill {
+            background: var(--theme-pill-bg);
+            color: var(--theme-pill-text);
+            border: 1px solid var(--theme-border);
+        }
+        html:not(.dark) .theme-pill {
+            background: color-mix(in srgb, var(--theme-primary) 13%, #ffffff);
+            color: var(--theme-primary-dark);
+            border: 1px solid color-mix(in srgb, var(--theme-primary) 30%, transparent);
+        }
+
+        .neon-gradient-btn {
+            background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-primary-dark) 50%, var(--theme-secondary) 100%);
+            box-shadow: 0 8px 24px -4px var(--theme-glow), 0 0 14px var(--theme-glow-sec);
+            color: #ffffff;
+        }
+        .neon-gradient-btn:hover {
+            filter: brightness(1.08);
+        }
+        .neon-gradient-btn:active {
+            transform: scale(0.985);
+        }
+
+        .cyber-glow {
+            box-shadow: 0 0 30px -6px var(--theme-glow), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+        }
+        html:not(.dark) .cyber-glow {
+            box-shadow: 0 14px 32px -10px color-mix(in srgb, var(--theme-primary) 26%, transparent), 0 4px 12px -4px rgba(15, 23, 42, 0.08);
+        }
+
+        .cyber-glow-blue {
+            box-shadow: 0 0 28px -6px var(--theme-glow-sec), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+        }
+        html:not(.dark) .cyber-glow-blue {
+            box-shadow: 0 14px 32px -10px color-mix(in srgb, var(--theme-secondary) 26%, transparent), 0 4px 12px -4px rgba(15, 23, 42, 0.08);
+        }
+
+        .cyber-glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.35);
+        }
+
+        .card-shimmer {
+            background: linear-gradient(135deg, var(--theme-primary-dark) 0%, var(--theme-primary) 50%, var(--theme-secondary-dark) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .card-shimmer::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 45%;
+            height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: rotate(25deg);
+            pointer-events: none;
+        }
+
+        .neon-input {
+            background: rgba(6, 5, 18, 0.82);
+            border: 1px solid var(--theme-border);
+            color: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+        }
+        .neon-input::placeholder {
+            color: #9ca3af;
+        }
+        .neon-input:focus {
+            outline: none;
+            border-color: var(--theme-secondary);
+            box-shadow: 0 0 0 3px var(--theme-glow-sec);
+        }
+
+        html:not(.dark) .neon-input {
+            background: #ffffff;
+            border: 1.5px solid color-mix(in srgb, var(--theme-primary) 34%, #cbd5e1);
+            color: #0f172a;
+        }
+        html:not(.dark) .neon-input::placeholder {
+            color: #64748b;
+        }
+        html:not(.dark) .neon-input:focus {
+            border-color: var(--theme-primary);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary) 20%, transparent);
+        }
+
+        .sub-box {
+            background: rgba(0, 0, 0, 0.42);
+            border: 1px solid color-mix(in srgb, var(--theme-primary) 22%, transparent);
+        }
+        html:not(.dark) .sub-box {
+            background: #f1f5ff;
+            border: 1px solid color-mix(in srgb, var(--theme-primary) 20%, #cbd5e1);
+            color: #0f172a;
+        }
+
+        .nav-pill-idle {
+            background: rgba(255, 255, 255, 0.06);
+            color: #d1d5db;
+            border: 1px solid color-mix(in srgb, var(--theme-primary) 18%, transparent);
+        }
+        html:not(.dark) .nav-pill-idle {
+            background: #eef2ff;
+            color: #334155;
+            border: 1px solid color-mix(in srgb, var(--theme-primary) 20%, #cbd5e1);
+        }
+
+        .icon-btn-neutral {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e5e7eb;
+            border: 1px solid color-mix(in srgb, var(--theme-primary) 28%, transparent);
+        }
+        html:not(.dark) .icon-btn-neutral {
+            background: #eef2ff;
+            color: #1e293b;
+            border: 1px solid color-mix(in srgb, var(--theme-primary) 28%, #cbd5e1);
+        }
+
+        .mobile-app-container {
+            width: 100%;
+            height: 100dvh;
+            max-width: 100%;
+            max-height: 100dvh;
+            background-color: #05040d;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        html:not(.dark) .mobile-app-container {
+            background-color: #f8faff;
+        }
+        @media (min-width: 640px) {
+            .mobile-app-container {
+                max-width: 412px;
+                height: 90dvh;
+                max-height: 880px;
+                border-radius: 2.75rem;
+                border: 2px solid var(--theme-border);
+                box-shadow: 0 0 65px var(--theme-glow), 0 0 35px var(--theme-glow-sec), 0 25px 50px -12px rgba(0, 0, 0, 0.95);
+            }
+            html:not(.dark) .mobile-app-container {
+                box-shadow: 0 20px 50px -12px color-mix(in srgb, var(--theme-primary) 30%, rgba(15, 23, 42, 0.25));
+            }
+        }
+        .safe-top {
+            padding-top: max(0.5rem, env(safe-area-inset-top));
+        }
+        .safe-bottom {
+            padding-bottom: max(0.55rem, env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body class="min-h-dvh flex items-center justify-center sm:p-4 antialiased">
+
+    <!-- Contenedor de Notificaciones Toast Flotantes -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[9999] space-y-3 pointer-events-none"></div>
+
+    <!-- Modal de Detalles de Movimiento / Transferencia -->
+    <div id="modalDetalleMovimiento" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md hidden"></div>
+
+    <!-- Contenedor Raíz con Apariencia de App Móvil -->
+    <div id="app" class="mobile-app-container"></div>
+
+    <!-- Script Principal Unificado: Login + Dashboard, Recuperar Contraseña y Registro -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-analytics.js";
+        import { getDatabase, ref, set, onValue, update, remove, push, runTransaction, get, child } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
+
+        const OFFICIAL_LOGO_URL = "https://i.postimg.cc/XvVqgrJF/20261116-035439-0000.png";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAee29RNZa3A-C-8APC1x_yMzViMgR7bBA",
+            authDomain: "futuro-ahora.firebaseapp.com",
+            databaseURL: "https://futuro-ahora-default-rtdb.firebaseio.com",
+            projectId: "futuro-ahora",
+            storageBucket: "futuro-ahora.firebasestorage.app",
+            messagingSenderId: "727564715444",
+            appId: "1:727564715444:web:0c4d66d7c2260daaeddee1",
+            measurementId: "G-EDDTRWG6VV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        try {
+            if (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) {
+                getAnalytics(app);
+            }
+        } catch (e) {}
+        const db = getDatabase(app);
+
+        window.fb = { db, ref, set, onValue, update, remove, push, runTransaction, get, child };
+
+        const COLOR_THEMES = {
+            cyber: { name: 'Cyber Morado/Azul', swatch: 'from-violet-600 to-blue-600' },
+            emerald: { name: 'Esmeralda Cian', swatch: 'from-emerald-500 to-cyan-500' },
+            solar: { name: 'Solar Ámbar/Rosa', swatch: 'from-amber-500 to-pink-500' },
+            ruby: { name: 'Rubí Violeta', swatch: 'from-rose-500 to-violet-600' },
+            ocean: { name: 'Océano Índigo', swatch: 'from-sky-500 to-indigo-600' },
+            neon: { name: 'Neón Fucsia/Cian', swatch: 'from-fuchsia-500 to-cyan-500' },
+            gold: { name: 'Oro Naranja', swatch: 'from-yellow-400 to-orange-600' }
+        };
+
+        window.setColorTheme = function(themeKey) {
+            if (!COLOR_THEMES[themeKey]) return;
+            document.documentElement.setAttribute('data-theme', themeKey);
+            localStorage.setItem('futuro_color_theme', themeKey);
+            window.state.colorTheme = themeKey;
+            window.showToast(`Tema aplicado: ${COLOR_THEMES[themeKey].name}`, 'info');
+            window.render();
+        };
+
+        function solicitarPermisoPush() {
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+        }
+
+        function lanzarPushNativo(titulo, mensaje) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(titulo, {
+                    body: mensaje,
+                    icon: OFFICIAL_LOGO_URL
+                });
+            }
+        }
+
+        window.toggleDarkMode = function() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('futuro_theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('futuro_theme', 'dark');
+            }
+            window.render();
+        };
+
+        window.showToast = function(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const bgClass = type === 'success'
+                ? 'bg-emerald-600/95 border-emerald-300/60 cyber-glow-emerald'
+                : type === 'error'
+                ? 'bg-rose-600/95 border-rose-300/60'
+                : 'neon-gradient-btn border-white/30 cyber-glow';
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-2xl shadow-2xl border text-xs font-bold flex items-center gap-2.5 transform translate-x-full transition-all duration-300 pointer-events-auto backdrop-blur-xl`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : 'fa-palette'} text-sm"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-x-full'), 50);
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        };
+
+        window.formatCurrencyInput = function(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (!value) {
+                input.value = '';
+                return;
+            }
+            let numero = (parseInt(value) / 100).toFixed(2);
+            let partes = numero.split('.');
+            partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            input.value = partes.join(',');
+        };
+
+        const BANCOS_VENEZUELA = [
+            "Banco de Venezuela S.A. C.A.", "Banesco Banco Universal, S.A.", "Banco Mercantil, S.A. C.A.",
+            "BBVA Provincial, S.A. C.A.", "Banco Nacional de Crédito, S.A. (BNC)", "Bancamiga Banco Universal, C.A.",
+            "Banco del Tesoro, C.A. Banco Universal", "Banco Bicentenario del Pueblo", "Banco Exterior, S.A. C.A.",
+            "Banco Sofitasa Banco Universal", "Bancrecer, S.A. Banco Microfinanciero", "Banco Activo, C.A. Banco Universal",
+            "Banco Caroní, C.A. Banco Universal", "100% Banco, S.A. C.A. Banco Universal", "Mi Banco, Banco Microfinanciero, C.A.",
+            "Banco Agrícola de Venezuela, C.A.", "DELSUR Banco Universal, C.A.", "Banco Plaza, C.A. Banco Universal",
+            "BFC Banco Fondo Común, C.A.", "N58 Banco Digital, S.A.", "Ubii Billetera Digital"
+        ];
+
+        window.state = {
+            view: 'loginWorker',
+            colorTheme: 'cyber',
+            currentUser: null,
+            recoverTargetKey: null,
+            tempRegisterData: null,
+            whitelistCedulas: {},
+            showCardDetails: false,
+            showEditCardModal: false,
+            pendingContact: null,
+            searchErrorMsg: '',
+            tasaBcv: 36.20,
+            tasaEuroBcv: 39.50,
+            tasaUsdt: 36.80,
+            simuladorMonto: 5000,
+            simuladorPlazo: 3,
+            filtroMovimiento: 'todos',
+            busquedaMovimiento: '',
+            faqs: {},
+            anuncios: {},
+            chats: {},
+            pagosCredito: {},
+            config: {
+                appDownloadUrl: 'https://ubii.app',
+                whatsappUrl: 'https://wa.me/584120000000',
+                cardImageUrl: 'https://i.postimg.cc/Lsyf7HM5/Screenshot-20261113-123853-Ub-App.png'
+            },
+            workers: {},
+            credits: {},
+            notifications: {}
+        };
+
+        function renderThemeSelectorBar() {
+            const activeTheme = window.state.colorTheme || 'cyber';
+            return `
+                <div class="sub-box rounded-2xl p-2 flex items-center justify-between gap-2">
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider label-primary flex items-center gap-1.5 shrink-0 pl-1">
+                        <i class="fa-solid fa-palette"></i> Tema
+                    </span>
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                        ${Object.entries(COLOR_THEMES).map(([key, cfg]) => {
+                            const selected = activeTheme === key;
+                            return `
+                                <button type="button" onclick="window.setColorTheme('${key}')" title="${cfg.name}"
+                                    class="px-2.5 py-1.5 rounded-xl text-[10px] font-extrabold flex items-center gap-1.5 transition shrink-0 ${selected ? 'neon-gradient-btn text-white scale-[1.03]' : 'nav-pill-idle hover:opacity-90'}">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r ${cfg.swatch} border border-white/40"></span>
+                                    <span>${cfg.name.split(' ')[0]}</span>
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        window.navigateToView = function(targetView) {
+            window.state.view = targetView;
+            window.render();
+        };
+
+        function getWorkerFirebaseRefKey(cedula) {
+            if (!cedula) return cedula;
+            const cleanSearch = cedula.trim().toUpperCase().replace(/-/g, '');
+            if (window.state.workers[cedula]) return cedula;
+            let foundKey = null;
+            Object.entries(window.state.workers || {}).forEach(([key, w]) => {
+                const dbCedula = w && w.cedula ? w.cedula.trim().toUpperCase().replace(/-/g, '') : '';
+                if (key.toUpperCase().replace(/-/g, '') === cleanSearch || dbCedula === cleanSearch) {
+                    foundKey = key;
+                }
+            });
+            return foundKey || cedula;
+        }
+
+        function getActiveWorkerData() {
+            if (!window.state.currentUser) return null;
+            let cedula = window.state.currentUser.cedula;
+            const workerKey = getWorkerFirebaseRefKey(cedula);
+            if (window.state.workers[workerKey]) {
+                return window.state.workers[workerKey];
+            }
+            return window.state.currentUser;
+        }
+
+        let inactivityTimer;
+        const INACTIVITY_TIME = 3 * 60 * 1000;
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            if (!window.state.currentUser) return;
+            inactivityTimer = setTimeout(() => {
+                cerrarSesionPorInactividad();
+            }, INACTIVITY_TIME);
+        }
+
+        function initInactivityTimer() {
+            window.addEventListener('mousemove', resetInactivityTimer);
+            window.addEventListener('keypress', resetInactivityTimer);
+            window.addEventListener('click', resetInactivityTimer);
+            window.addEventListener('scroll', resetInactivityTimer);
+            resetInactivityTimer();
+        }
+
+        function cerrarSesionPorInactividad() {
+            sessionStorage.removeItem('futuro_current_user');
+            window.state.currentUser = null;
+            workerTab = 'feed';
+            window.state.view = 'loginWorker';
+            window.showToast('Sesión cerrada por inactividad de seguridad.', 'error');
+            window.render();
+        }
+
+        window.logoutWorker = function() {
+            sessionStorage.removeItem('futuro_current_user');
+            window.state.currentUser = null;
+            workerTab = 'feed';
+            window.state.view = 'loginWorker';
+            window.render();
+        };
+
+        let firebaseListenersInitialized = false;
+
+        function initFirebaseListeners() {
+            if (firebaseListenersInitialized) return;
+            firebaseListenersInitialized = true;
+
+            onValue(ref(db, 'whitelistCedulas'), (snapshot) => {
+                window.state.whitelistCedulas = snapshot.val() || {};
+            });
+
+            onValue(ref(db, 'workers'), (snapshot) => {
+                window.state.workers = snapshot.val() || {};
+                if (window.state.currentUser && window.state.currentUser.role === 'worker') {
+                    const freshData = getActiveWorkerData();
+                    if (freshData) {
+                        window.state.currentUser = freshData;
+                        window.state.currentUser.role = 'worker';
+                    }
+                }
+                window.render();
+            });
+
+            onValue(ref(db, 'credits'), (snapshot) => {
+                window.state.credits = snapshot.val() || {};
+            });
+
+            onValue(ref(db, 'pagosCredito'), (snapshot) => {
+                window.state.pagosCredito = snapshot.val() || {};
+                window.render();
+            });
+
+            onValue(ref(db, 'notifications'), (snapshot) => {
+                window.state.notifications = snapshot.val() || {};
+                if (window.state.currentUser && window.state.currentUser.role === 'worker') {
+                    const cedulaKey = window.state.currentUser.cedula;
+                    const notifs = window.state.notifications[cedulaKey] || window.state.notifications[getWorkerFirebaseRefKey(cedulaKey)] || [];
+                    if (notifs.length > 0 && !notifs[0].leida) {
+                        lanzarPushNativo(notifs[0].titulo, notifs[0].mensaje);
+                    }
+                }
+                window.render();
+            });
+
+            onValue(ref(db, 'faqs'), (snapshot) => {
+                window.state.faqs = snapshot.val() || {};
+                window.render();
+            });
+
+            onValue(ref(db, 'anuncios'), (snapshot) => {
+                window.state.anuncios = snapshot.val() || {};
+                window.render();
+            });
+
+            onValue(ref(db, 'chats'), (snapshot) => {
+                window.state.chats = snapshot.val() || {};
+                window.render();
+            });
+
+            onValue(ref(db, 'config'), (snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    window.state.config = val;
+                    if (val.tasaBcv) window.state.tasaBcv = parseFloat(val.tasaBcv);
+                    if (val.tasaEuroBcv) window.state.tasaEuroBcv = parseFloat(val.tasaEuroBcv);
+                    if (val.tasaUsdt) window.state.tasaUsdt = parseFloat(val.tasaUsdt);
+                    window.state.config.cardImageUrl = 'https://i.postimg.cc/Lsyf7HM5/Screenshot-20261113-123853-Ub-App.png';
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            solicitarPermisoPush();
+            const savedTheme = localStorage.getItem('futuro_theme');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+
+            const savedColorTheme = localStorage.getItem('futuro_color_theme');
+            if (savedColorTheme && COLOR_THEMES[savedColorTheme]) {
+                window.state.colorTheme = savedColorTheme;
+                document.documentElement.setAttribute('data-theme', savedColorTheme);
+            }
+
+            const savedUser = sessionStorage.getItem('futuro_current_user');
+            if (savedUser) {
+                const parsed = JSON.parse(savedUser);
+                window.state.currentUser = { cedula: parsed.cedula, role: 'worker', nombre: 'Cargando...', apellido: '' };
+                workerTab = 'feed';
+                window.state.view = 'workerDashboard';
+                initInactivityTimer();
+            }
+            initFirebaseListeners();
+            window.render();
+        });
+
+        window.render = function() {
+            const appDiv = document.getElementById('app');
+            if (!appDiv) return;
+            appDiv.innerHTML = '';
+
+            const s = window.state;
+            if (s.view === 'loginWorker') appDiv.innerHTML = renderLoginWorker();
+            else if (s.view === 'registerWorker') appDiv.innerHTML = renderRegisterWorker();
+            else if (s.view === 'verifyRegisterCode') appDiv.innerHTML = renderVerifyRegisterCode();
+            else if (s.view === 'forgotPassword') appDiv.innerHTML = renderForgotPassword();
+            else if (s.view === 'verifyCode') appDiv.innerHTML = renderVerifyCode();
+            else if (s.view === 'resetPassword') appDiv.innerHTML = renderResetPassword();
+            else if (s.view === 'workerDashboard') {
+                if (workerTab === 'metas') workerTab = 'feed';
+                appDiv.innerHTML = renderWorkerDashboard();
+                if (walletTab === 'balance') setTimeout(initWalletChart, 100);
+            }
+        };
+
+        // ================= KAMBIO YIMMI ================= //
+        window.updateDolarCard = function(source, val) {
+            let num = parseFloat(val);
+            let tasa = window.state.tasaBcv;
+            if (isNaN(num) || val === '') {
+                if (source === 'usd') {
+                    document.getElementById('kambioUsdInput').value = '1.00';
+                    document.getElementById('kambioUsdBs').value = tasa.toFixed(2);
+                } else {
+                    document.getElementById('kambioUsdBs').value = tasa.toFixed(2);
+                    document.getElementById('kambioUsdInput').value = '1.00';
+                }
+                return;
+            }
+            if (source === 'usd') {
+                let bs = num * tasa;
+                document.getElementById('kambioUsdBs').value = bs.toFixed(2);
+            } else {
+                let usd = num / tasa;
+                document.getElementById('kambioUsdInput').value = usd.toFixed(2);
+            }
+        };
+
+        window.updateEuroCard = function(source, val) {
+            let num = parseFloat(val);
+            let tasa = window.state.tasaEuroBcv;
+            if (isNaN(num) || val === '') {
+                if (source === 'eur') {
+                    document.getElementById('kambioEurInput').value = '1.00';
+                    document.getElementById('kambioEurBs').value = tasa.toFixed(2);
+                } else {
+                    document.getElementById('kambioEurBs').value = tasa.toFixed(2);
+                    document.getElementById('kambioEurInput').value = '1.00';
+                }
+                return;
+            }
+            if (source === 'eur') {
+                let bs = num * tasa;
+                document.getElementById('kambioEurBs').value = bs.toFixed(2);
+            } else {
+                let eur = num / tasa;
+                document.getElementById('kambioEurInput').value = eur.toFixed(2);
+            }
+        };
+
+        window.updateUsdtCard = function(source, val) {
+            let num = parseFloat(val);
+            let tasa = window.state.tasaUsdt;
+            if (isNaN(num) || val === '') {
+                if (source === 'usdt') {
+                    document.getElementById('kambioUsdtInput').value = '1.00';
+                    document.getElementById('kambioUsdtBs').value = tasa.toFixed(2);
+                } else {
+                    document.getElementById('kambioUsdtBs').value = tasa.toFixed(2);
+                    document.getElementById('kambioUsdtInput').value = '1.00';
+                }
+                return;
+            }
+            if (source === 'usdt') {
+                let bs = num * tasa;
+                document.getElementById('kambioUsdtBs').value = bs.toFixed(2);
+            } else {
+                let usdt = num / tasa;
+                document.getElementById('kambioUsdtInput').value = usdt.toFixed(2);
+            }
+        };
+
+        window.copiarAlPortapapeles = function(texto) {
+            navigator.clipboard.writeText(texto).then(() => {
+                window.showToast('¡Copiado: ' + texto + '!', 'success');
+            });
+        };
+
+        function renderKambioYimmiView() {
+            const tasaUsd = window.state.tasaBcv;
+            const tasaEur = window.state.tasaEuroBcv;
+            const tasaUsdt = window.state.tasaUsdt;
+            const fechaHoy = new Date().toLocaleDateString();
+
+            return `
+                <div class="space-y-3.5 pb-6">
+                    <div class="flex items-center justify-between px-1">
+                        <div>
+                            <span class="text-[9px] font-black uppercase tracking-widest theme-pill px-2.5 py-0.5 rounded-full">Tasas en Vivo</span>
+                            <h3 class="text-base font-black mt-1 title-gradient">Conversor Multimoneda</h3>
+                        </div>
+                        <span class="text-[10px] font-mono opacity-70">${fechaHoy}</span>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-3xl space-y-2.5 cyber-glow">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3.5 py-1 rounded-full neon-gradient-btn text-white text-[10px] font-black flex items-center gap-1.5">
+                                <i class="fa-solid fa-dollar-sign"></i> Dólar BCV
+                            </span>
+                            <span class="text-[10px] font-mono font-bold text-emerald-500 dark:text-emerald-400">1 USD = ${tasaUsd.toFixed(2)} Bs</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center justify-between neon-input rounded-2xl px-3 py-2.5">
+                                <span class="text-[10px] font-black label-secondary">USD</span>
+                                <input type="number" step="0.01" id="kambioUsdInput" value="1.00" oninput="window.updateDolarCard('usd', this.value)" class="w-20 bg-transparent border-0 text-xs font-mono font-bold text-right focus:outline-none">
+                                <button type="button" onclick="window.copiarAlPortapapeles(document.getElementById('kambioUsdInput').value)" class="label-primary hover:opacity-80 pl-1"><i class="fa-regular fa-copy text-[11px]"></i></button>
+                            </div>
+                            <div class="flex items-center justify-between neon-input rounded-2xl px-3 py-2.5">
+                                <span class="text-[10px] font-black label-primary">BS</span>
+                                <input type="number" step="0.01" id="kambioUsdBs" value="${tasaUsd.toFixed(2)}" oninput="window.updateDolarCard('bs', this.value)" class="w-20 bg-transparent border-0 text-emerald-500 dark:text-emerald-400 text-xs font-mono font-bold text-right focus:outline-none">
+                                <button type="button" onclick="window.copiarAlPortapapeles(document.getElementById('kambioUsdBs').value)" class="label-primary hover:opacity-80 pl-1"><i class="fa-regular fa-copy text-[11px]"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-3xl space-y-2.5 cyber-glow-blue">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3.5 py-1 rounded-full neon-gradient-btn text-white text-[10px] font-black flex items-center gap-1.5">
+                                <i class="fa-solid fa-euro-sign"></i> Euro BCV
+                            </span>
+                            <span class="text-[10px] font-mono font-bold label-secondary">1 EUR = ${tasaEur.toFixed(2)} Bs</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center justify-between neon-input rounded-2xl px-3 py-2.5">
+                                <span class="text-[10px] font-black label-secondary">EUR</span>
+                                <input type="number" step="0.01" id="kambioEurInput" value="1.00" oninput="window.updateEuroCard('eur', this.value)" class="w-20 bg-transparent border-0 text-xs font-mono font-bold text-right focus:outline-none">
+                                <button type="button" onclick="window.copiarAlPortapapeles(document.getElementById('kambioEurInput').value)" class="label-primary hover:opacity-80 pl-1"><i class="fa-regular fa-copy text-[11px]"></i></button>
+                            </div>
+                            <div class="flex items-center justify-between neon-input rounded-2xl px-3 py-2.5">
+                                <span class="text-[10px] font-black label-primary">BS</span>
+                                <input type="number" step="0.01" id="kambioEurBs" value="${tasaEur.toFixed(2)}" oninput="window.updateEuroCard('bs', this.value)" class="w-20 bg-transparent border-0 label-secondary text-xs font-mono font-bold text-right focus:outline-none">
+                                <button type="button" onclick="window.copiarAlPortapapeles(document.getElementById('kambioEurBs').value)" class="label-primary hover:opacity-80 pl-1"><i class="fa-regular fa-copy text-[11px]"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-3xl space-y-2.5 cyber-glow">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3.5 py-1 rounded-full neon-gradient-btn text-white text-[10px] font-black flex items-center gap-1.5">
+                                <i class="fa-solid fa-bolt"></i> USDT
+                            </span>
+                            <span class="text-[10px] font-mono font-bold label-primary">1 USDT = ${tasaUsdt.toFixed(2)} Bs</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center justify-between neon-input rounded-2xl px-3 py-2.5">
+                                <span class="text-[10px] font-black label-secondary">USDT</span>
+                                <input type="number" step="0.01" id="kambioUsdtInput" value="1.00" oninput="window.updateUsdtCard('usdt', this.value)" class="w-20 bg-transparent border-0 text-xs font-mono font-bold text-right focus:outline-none">
+                                <button type="button" onclick="window.copiarAlPortapapeles(document.getElementById('kambioUsdtInput').value)" class="label-primary hover:opacity-80 pl-1"><i class="fa-regular fa-copy text-[11px]"></i></button>
+                            </div>
+                            <div class="flex items-center justify-between neon-input rounded-2xl px-3 py-2.5">
+                                <span class="text-[10px] font-black label-primary">BS</span>
+                                <input type="number" step="0.01" id="kambioUsdtBs" value="${tasaUsdt.toFixed(2)}" oninput="window.updateUsdtCard('bs', this.value)" class="w-20 bg-transparent border-0 label-primary text-xs font-mono font-bold text-right focus:outline-none">
+                                <button type="button" onclick="window.copiarAlPortapapeles(document.getElementById('kambioUsdtBs').value)" class="label-primary hover:opacity-80 pl-1"><i class="fa-regular fa-copy text-[11px]"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ================= VISTA DE AUTENTICACIÓN (LOGIN MÓVIL CON LOGO OFICIAL EN FONDO BLANCO) ================= //
+        function renderLoginWorker() {
+            return `
+                <div class="flex-1 flex flex-col justify-between p-4 safe-top safe-bottom app-surface-bg overflow-y-auto">
+                    <div class="flex items-center justify-between gap-2 pt-1">
+                        <button type="button" onclick="window.toggleDarkMode()" class="w-9 h-9 rounded-2xl icon-btn-neutral flex items-center justify-center text-xs transition" title="Cambiar Modo Claro/Oscuro">
+                            <i class="fa-solid fa-moon dark:fa-sun"></i>
+                        </button>
+                        <span class="text-[9px] font-black uppercase tracking-widest theme-pill px-3 py-1 rounded-full">Futuro Ahora</span>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-[2rem] shadow-2xl relative cyber-glow my-auto space-y-4">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="relative mb-3">
+                                <div class="w-16 h-16 rounded-[1.35rem] overflow-hidden bg-white p-1.5 shadow-xl border border-slate-200">
+                                    <img src="${OFFICIAL_LOGO_URL}" alt="Logo Oficial Futuro Ahora" class="w-full h-full object-contain rounded-[0.9rem]">
+                                </div>
+                                <span class="w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0c0a1d] absolute -bottom-0.5 -right-0.5" title="En línea"></span>
+                            </div>
+                            <span class="text-[9px] font-black uppercase tracking-widest theme-pill px-3 py-0.5 rounded-full">Banca Móvil Corporativa</span>
+                            <h1 class="text-xl font-black tracking-tight mt-2 title-gradient">Futuro Ahora</h1>
+                            <p class="text-[11px] opacity-75 mt-0.5">Accede a tu billetera, bonos y servicios</p>
+                        </div>
+
+                        ${renderThemeSelectorBar()}
+
+                        <form id="formLoginWorker" class="space-y-3">
+                            <div>
+                                <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider block mb-1 pl-1">Cédula de Identidad</label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-id-card text-xs label-primary opacity-75 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                                    <input type="text" id="loginId" required placeholder="V26123456" class="w-full neon-input rounded-2xl pl-9 pr-4 py-3 text-xs font-mono">
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1 px-1">
+                                    <label class="text-[10px] label-secondary font-extrabold uppercase tracking-wider">Contraseña</label>
+                                    <button type="button" onclick="window.navigateToView('forgotPassword')" class="text-[10px] label-primary font-bold hover:underline">¿Olvidaste tu clave?</button>
+                                </div>
+                                <div class="relative">
+                                    <i class="fa-solid fa-lock text-xs label-secondary opacity-75 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                                    <input type="password" id="loginPass" required placeholder="••••••••" class="w-full neon-input rounded-2xl pl-9 pr-4 py-3 text-xs">
+                                </div>
+                            </div>
+                            <button type="submit" id="btnLoginSubmit" class="w-full py-3.5 rounded-2xl neon-gradient-btn font-black text-xs transition mt-1 flex items-center justify-center gap-2 tracking-wide">
+                                <span>ENTRAR A MI CUENTA</span>
+                                <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                            </button>
+                        </form>
+
+                        <div class="sub-box rounded-2xl p-3 flex items-center justify-between text-[11px]">
+                            <span class="opacity-80 font-medium">¿Aún no tienes cuenta?</span>
+                            <button type="button" onclick="window.navigateToView('registerWorker')" class="font-black label-secondary hover:underline flex items-center gap-1">
+                                <span>Crear cuenta</span>
+                                <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="text-center pb-1">
+                        <a href="https://administracion.futuroahora.com" class="inline-flex items-center gap-1.5 text-[10px] font-bold opacity-75 hover:opacity-100 transition">
+                            <i class="fa-solid fa-shield-halved text-emerald-500"></i>
+                            <span>Consola Administrativa</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ================= VISTA DE REGISTRO DE TRABAJADOR ================= //
+        function renderRegisterWorker() {
+            return `
+                <div class="flex-1 flex flex-col justify-center p-4 safe-top safe-bottom app-surface-bg overflow-y-auto">
+                    <div class="glass-panel p-5 rounded-[2rem] shadow-2xl relative cyber-glow my-auto space-y-3.5">
+                        <div class="flex items-center justify-between">
+                            <button type="button" onclick="window.navigateToView('loginWorker')" class="w-8 h-8 rounded-xl icon-btn-neutral flex items-center justify-center text-xs transition" title="Volver">
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+                            <span class="text-[9px] font-black uppercase tracking-widest theme-pill px-2.5 py-0.5 rounded-full">Nuevo Usuario</span>
+                        </div>
+
+                        <div>
+                            <h2 class="text-lg font-black tracking-tight title-gradient">Registro de Trabajador</h2>
+                            <p class="text-[11px] opacity-75">Verifica tu cédula y correo para activar tu app</p>
+                        </div>
+
+                        <form id="formRegister" class="space-y-2.5">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider block mb-1 pl-1">Nombre</label>
+                                    <input type="text" id="regNombre" required class="w-full neon-input rounded-2xl px-3.5 py-2.5 text-xs">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] label-secondary font-extrabold uppercase tracking-wider block mb-1 pl-1">Apellido</label>
+                                    <input type="text" id="regApellido" required class="w-full neon-input rounded-2xl px-3.5 py-2.5 text-xs">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider block mb-1 pl-1">Cédula de Identidad</label>
+                                <input type="text" id="regCedula" required placeholder="Ej. V-26123456" class="w-full neon-input rounded-2xl px-3.5 py-2.5 text-xs font-mono">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[10px] label-secondary font-extrabold uppercase tracking-wider block mb-1 pl-1">Nacimiento</label>
+                                    <input type="date" id="regNacimiento" required class="w-full neon-input rounded-2xl px-3 py-2.5 text-xs">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider block mb-1 pl-1">Teléfono</label>
+                                    <input type="text" id="regTelefono" required placeholder="0412..." class="w-full neon-input rounded-2xl px-3.5 py-2.5 text-xs font-mono">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] label-secondary font-extrabold uppercase tracking-wider block mb-1 pl-1">Correo Electrónico</label>
+                                <input type="email" id="regEmail" required placeholder="correo@ubii.app" class="w-full neon-input rounded-2xl px-3.5 py-2.5 text-xs">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider block mb-1 pl-1">Contraseña</label>
+                                    <input type="password" id="regPassword" required minlength="6" placeholder="Mín. 6" class="w-full neon-input rounded-2xl px-3.5 py-2.5 text-xs">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] label-secondary font-extrabold uppercase tracking-wider block mb-1 pl-1">Confirmar</label>
+                                    <input type="password" id="regPasswordConfirm" required minlength="6" placeholder="Repetir" class="w-full neon-input rounded-2xl px-3.5 py-2.5 text-xs">
+                                </div>
+                            </div>
+
+                            <button type="submit" id="btnRegSubmit" class="w-full py-3.5 rounded-2xl neon-gradient-btn font-black text-xs transition mt-2 flex items-center justify-center gap-2">
+                                <span>ENVIAR CÓDIGO</span>
+                                <i class="fa-solid fa-paper-plane text-[11px]"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderVerifyRegisterCode() {
+            return `
+                <div class="flex-1 flex flex-col justify-center p-5 safe-top safe-bottom app-surface-bg overflow-y-auto">
+                    <div class="glass-panel p-6 rounded-[2rem] shadow-2xl relative text-center cyber-glow my-auto space-y-4">
+                        <div class="flex justify-start">
+                            <button type="button" onclick="window.navigateToView('registerWorker')" class="w-8 h-8 rounded-xl icon-btn-neutral flex items-center justify-center text-xs"><i class="fa-solid fa-arrow-left"></i></button>
+                        </div>
+                        <div>
+                            <div class="w-14 h-14 theme-pill rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl shadow-lg">
+                                <i class="fa-solid fa-envelope-circle-check"></i>
+                            </div>
+                            <h2 class="text-lg font-black tracking-tight title-gradient">Verifica tu Correo</h2>
+                            <p class="text-[11px] opacity-75 mt-1">Ingresa el código de 6 dígitos enviado a tu email</p>
+                        </div>
+                        <form id="formVerifyRegisterCode" class="space-y-4">
+                            <input type="text" id="inputRegCode" required maxlength="6" placeholder="123456" class="w-full neon-input rounded-2xl px-4 py-3.5 text-center text-xl tracking-[0.5em] font-mono font-bold">
+                            <button type="submit" id="btnVerifyRegSubmit" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs shadow-xl shadow-emerald-600/30 hover:opacity-95 transition">
+                                COMPLETAR REGISTRO
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ================= RECUPERACIÓN DE CONTRASEÑA ================= //
+        function renderForgotPassword() {
+            return `
+                <div class="flex-1 flex flex-col justify-center p-5 safe-top safe-bottom app-surface-bg overflow-y-auto">
+                    <div class="w-full glass-panel p-6 rounded-[2rem] shadow-2xl relative cyber-glow my-auto space-y-4">
+                        <div class="flex items-center justify-between">
+                            <button type="button" onclick="window.navigateToView('loginWorker')" class="w-8 h-8 rounded-xl icon-btn-neutral flex items-center justify-center text-xs"><i class="fa-solid fa-arrow-left"></i></button>
+                            <span class="text-[9px] font-black uppercase tracking-widest theme-pill px-2.5 py-0.5 rounded-full">Seguridad</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-14 h-14 rounded-2xl theme-pill flex items-center justify-center mx-auto mb-3 shadow-lg text-xl">
+                                <i class="fa-solid fa-key"></i>
+                            </div>
+                            <h2 class="text-lg font-black tracking-tight title-gradient">Recuperar Contraseña</h2>
+                            <p class="text-[11px] opacity-75 mt-1">Te enviaremos un código a tu correo registrado</p>
+                        </div>
+                        <form id="formRecover" class="space-y-3.5">
+                            <div>
+                                <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider block mb-1 pl-1">Cédula o Correo</label>
+                                <input type="text" id="recoverId" required placeholder="Ej. V-26123456" class="w-full neon-input rounded-2xl px-4 py-3 text-xs">
+                            </div>
+                            <button type="submit" id="btnRecoverSubmit" class="w-full py-3.5 rounded-2xl neon-gradient-btn font-black text-xs transition">
+                                ENVIAR CÓDIGO
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderVerifyCode() {
+            return `
+                <div class="flex-1 flex flex-col justify-center p-5 safe-top safe-bottom app-surface-bg overflow-y-auto">
+                    <div class="w-full glass-panel p-6 rounded-[2rem] shadow-2xl relative cyber-glow text-center my-auto space-y-4">
+                        <div class="flex justify-start">
+                            <button type="button" onclick="window.navigateToView('forgotPassword')" class="w-8 h-8 rounded-xl icon-btn-neutral flex items-center justify-center text-xs"><i class="fa-solid fa-arrow-left"></i></button>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-black tracking-tight title-gradient">Verificar Código</h2>
+                            <p class="text-[11px] opacity-75 mt-1">Ingresa el código de 6 dígitos recibido</p>
+                        </div>
+                        <form id="formVerifyCode" class="space-y-4">
+                            <input type="text" id="inputCode" required maxlength="6" placeholder="123456" class="w-full neon-input rounded-2xl px-4 py-3.5 text-center text-xl tracking-[0.5em] font-mono font-bold">
+                            <button type="submit" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs shadow-xl hover:opacity-95 transition">
+                                VERIFICAR CÓDIGO
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderResetPassword() {
+            return `
+                <div class="flex-1 flex flex-col justify-center p-5 safe-top safe-bottom app-surface-bg overflow-y-auto">
+                    <div class="w-full glass-panel p-6 rounded-[2rem] shadow-2xl relative cyber-glow my-auto space-y-4">
+                        <div class="text-center">
+                            <h2 class="text-lg font-black tracking-tight title-gradient">Nueva Contraseña</h2>
+                            <p class="text-[11px] opacity-75 mt-1">Mínimo 6 caracteres para proteger tu cuenta</p>
+                        </div>
+                        <form id="formResetPassword" class="space-y-3.5">
+                            <div>
+                                <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider block mb-1 pl-1">Nueva Contraseña</label>
+                                <input type="password" id="newPassword" required minlength="6" class="w-full neon-input rounded-2xl px-4 py-3 text-xs">
+                            </div>
+                            <div>
+                                <label class="text-[10px] label-secondary font-extrabold uppercase tracking-wider block mb-1 pl-1">Confirmar Contraseña</label>
+                                <input type="password" id="newPasswordConfirm" required minlength="6" class="w-full neon-input rounded-2xl px-4 py-3 text-xs">
+                            </div>
+                            <button type="submit" class="w-full py-3.5 rounded-2xl neon-gradient-btn font-black text-xs transition">
+                                ACTUALIZAR CONTRASEÑA
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ================= MANEJADORES DE ENVÍO ================= //
+        document.addEventListener('submit', async function(e) {
+            if (e.target && e.target.id === 'formLoginWorker') {
+                e.preventDefault();
+                const identifier = document.getElementById('loginId').value.trim().toUpperCase();
+                const pass = document.getElementById('loginPass').value;
+                const btn = document.getElementById('btnLoginSubmit');
+
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verificando...`;
+
+                let found = null;
+                Object.values(window.state.workers).forEach(w => {
+                    if ((w.cedula === identifier || w.cedula === identifier.replace('-', '') || w.email === identifier) && w.password === pass) {
+                        found = w;
+                    }
+                });
+
+                if (found) {
+                    window.state.currentUser = found;
+                    window.state.currentUser.role = 'worker';
+                    workerTab = 'feed';
+                    sessionStorage.setItem('futuro_current_user', JSON.stringify({ cedula: found.cedula, role: 'worker' }));
+                    initInactivityTimer();
+                    window.showToast(`¡Bienvenido de nuevo, ${found.nombre}!`, 'success');
+                    window.state.view = 'workerDashboard';
+                    window.render();
+                } else {
+                    window.showToast('Credenciales incorrectas. Verifica tus datos.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>ENTRAR A MI CUENTA</span><i class="fa-solid fa-arrow-right text-[11px]"></i>';
+                }
+            }
+
+            if (e.target && e.target.id === 'formRegister') {
+                e.preventDefault();
+                let cedulaRaw = document.getElementById('regCedula').value.trim().toUpperCase();
+                const cedulaRegex = /^[VEJP]-?\d{6,10}$/;
+
+                if (!cedulaRegex.test(cedulaRaw)) {
+                    window.showToast('Formato de cédula inválido. Use formato venezolano (Ej. V-26123456).', 'error');
+                    return;
+                }
+
+                const cedula = cedulaRaw.replace('-', '');
+                const email = document.getElementById('regEmail').value.trim();
+                const pass = document.getElementById('regPassword').value;
+                const passConfirm = document.getElementById('regPasswordConfirm').value;
+
+                if (pass !== passConfirm) {
+                    window.showToast('Las contraseñas no coinciden.', 'error');
+                    return;
+                }
+
+                const dbRef = ref(db);
+                const snapshot = await get(child(dbRef, `workers/${cedula}`));
+                if (snapshot.exists()) {
+                    window.showToast('Ya existe un trabajador registrado con esta cédula.', 'error');
+                    return;
+                }
+
+                const whitelist = window.state.whitelistCedulas || {};
+                const estaAutorizadoBono = whitelist[cedula] !== undefined;
+
+                const btn = document.getElementById('btnRegSubmit');
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Enviando código...`;
+
+                const codigoVerificacion = Math.floor(100000 + Math.random() * 900000);
+
+                let bonosAsignadosObj = {};
+                if (estaAutorizadoBono) {
+                    bonosAsignadosObj['bono_bienvenida'] = {
+                        nombre: 'Bono de Bienvenida',
+                        monto: 10000.00,
+                        detalles: 'Bono inicial por registro autorizado',
+                        aceptado: false
+                    };
+                }
+
+                window.state.tempRegisterData = {
+                    nombre: document.getElementById('regNombre').value.trim(),
+                    apellido: document.getElementById('regApellido').value.trim(),
+                    cedula: cedula,
+                    fechaNacimiento: document.getElementById('regNacimiento').value,
+                    telefono: document.getElementById('regTelefono').value.trim(),
+                    email: email,
+                    password: pass,
+                    codigoVerificacion: codigoVerificacion,
+                    saldo: 0.00,
+                    cuentasBancarias: [],
+                    contactosAfiliados: [],
+                    tarjeta: { numero: '', expiracion: '', cvv: '' },
+                    movimientos: [],
+                    bonosAsignados: bonosAsignadosObj,
+                    solicitudesConstancia: []
+                };
+
+                emailjs.init("g_xwoqyA-0TCQ9z-5");
+                emailjs.send("service_tixf3g9", "template_cfc7qmv", {
+                    to_email: email,
+                    to_name: window.state.tempRegisterData.nombre + " " + window.state.tempRegisterData.apellido,
+                    passcode: codigoVerificacion
+                })
+                .then(() => {
+                    window.showToast('¡Código de verificación enviado a tu correo!', 'success');
+                    window.state.view = 'verifyRegisterCode';
+                    window.render();
+                }, (error) => {
+                    console.error('Error al enviar correo: ', error);
+                    window.showToast('Error al enviar el correo de verificación.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>ENVIAR CÓDIGO</span><i class="fa-solid fa-paper-plane text-[11px]"></i>';
+                });
+            }
+
+            if (e.target && e.target.id === 'formVerifyRegisterCode') {
+                e.preventDefault();
+                const codigoIngresado = document.getElementById('inputRegCode').value.trim();
+                const tempWorker = window.state.tempRegisterData;
+                const btn = document.getElementById('btnVerifyRegSubmit');
+
+                if (tempWorker && parseInt(codigoIngresado) === parseInt(tempWorker.codigoVerificacion)) {
+                    delete tempWorker.codigoVerificacion;
+                    btn.disabled = true;
+                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Registrando...`;
+
+                    set(ref(db, 'workers/' + tempWorker.cedula), tempWorker).then(() => {
+                        window.state.tempRegisterData = null;
+                        window.showToast('¡Registro completado exitosamente!', 'success');
+                        setTimeout(() => {
+                            window.state.view = 'loginWorker';
+                            window.render();
+                        }, 1500);
+                    });
+                } else {
+                    window.showToast('Código de verificación incorrecto.', 'error');
+                }
+            }
+
+            if (e.target && e.target.id === 'formRecover') {
+                e.preventDefault();
+                const identifier = document.getElementById('recoverId').value.trim().toUpperCase();
+                const btn = document.getElementById('btnRecoverSubmit');
+                let workerFoundKey = null;
+                let workerData = null;
+
+                Object.keys(window.state.workers).forEach(cedula => {
+                    const w = window.state.workers[cedula];
+                    if (w.cedula === identifier || w.cedula === identifier.replace('-', '') || w.email === identifier) {
+                        workerFoundKey = cedula;
+                        workerData = w;
+                    }
+                });
+
+                if (!workerFoundKey) {
+                    window.showToast('No se encontró ningún trabajador con esa cédula o correo.', 'error');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Enviando...`;
+                const codigoVerificacion = Math.floor(100000 + Math.random() * 900000);
+                workerData.codigoRecuperacion = codigoVerificacion;
+
+                set(ref(db, 'workers/' + workerFoundKey), workerData).then(() => {
+                    emailjs.init("g_xwoqyA-0TCQ9z-5");
+                    emailjs.send("service_tixf3g9", "template_cfc7qmv", {
+                        to_email: workerData.email,
+                        to_name: workerData.nombre + " " + workerData.apellido,
+                        passcode: codigoVerificacion
+                    })
+                    .then(() => {
+                        window.state.recoverTargetKey = workerFoundKey;
+                        window.showToast('Código de recuperación enviado a tu correo.', 'success');
+                        window.state.view = 'verifyCode';
+                        window.render();
+                    }).catch(err => {
+                        console.error(err);
+                        window.showToast('Error al enviar el correo con EmailJS.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = 'ENVIAR CÓDIGO';
+                    });
+                });
+            }
+
+            if (e.target && e.target.id === 'formVerifyCode') {
+                e.preventDefault();
+                const codigoIngresado = document.getElementById('inputCode').value.trim();
+
+                if (!window.state.recoverTargetKey || !window.state.workers[window.state.recoverTargetKey]) {
+                    window.showToast('Sesión de recuperación expirada. Inicia nuevamente.', 'error');
+                    window.state.view = 'forgotPassword';
+                    window.render();
+                    return;
+                }
+
+                const workerData = window.state.workers[window.state.recoverTargetKey];
+
+                if (workerData && parseInt(codigoIngresado) === parseInt(workerData.codigoRecuperacion)) {
+                    window.state.view = 'resetPassword';
+                    window.render();
+                } else {
+                    window.showToast('Código de recuperación inválido.', 'error');
+                }
+            }
+
+            if (e.target && e.target.id === 'formResetPassword') {
+                e.preventDefault();
+                const nuevaPass = document.getElementById('newPassword').value;
+                const nuevaPassConfirm = document.getElementById('newPasswordConfirm').value;
+
+                if (nuevaPass !== nuevaPassConfirm) {
+                    window.showToast('Las contraseñas no coinciden.', 'error');
+                    return;
+                }
+
+                if (!window.state.recoverTargetKey || !window.state.workers[window.state.recoverTargetKey]) {
+                    window.showToast('Sesión de recuperación expirada. Inicia nuevamente.', 'error');
+                    window.state.view = 'forgotPassword';
+                    window.render();
+                    return;
+                }
+
+                const workerKey = window.state.recoverTargetKey;
+                const workerData = window.state.workers[workerKey];
+
+                if (workerData && nuevaPass) {
+                    workerData.password = nuevaPass;
+                    delete workerData.codigoRecuperacion;
+
+                    set(ref(db, 'workers/' + workerKey), workerData).then(() => {
+                        window.state.recoverTargetKey = null;
+                        window.showToast('¡Contraseña actualizada con éxito! Redirigiendo...', 'success');
+
+                        setTimeout(() => {
+                            window.state.view = 'loginWorker';
+                            window.render();
+                        }, 1500);
+                    });
+                }
+            }
+
+            if (e.target && e.target.id === 'formEditCard') {
+                e.preventDefault();
+                const cedula = window.state.currentUser.cedula;
+                const workerKey = getWorkerFirebaseRefKey(cedula);
+                const worker = getActiveWorkerData();
+                worker.tarjeta = {
+                    numero: document.getElementById('modalCardNum').value.trim(),
+                    expiracion: document.getElementById('modalCardExp').value.trim(),
+                    cvv: document.getElementById('modalCardCvv').value.trim()
+                };
+                window.fb.set(window.fb.ref(window.fb.db, 'workers/' + workerKey), worker).then(() => {
+                    window.state.showEditCardModal = false;
+                    window.showToast('Datos de tarjeta actualizados.', 'success');
+                    window.render();
+                });
+            }
+        });
+
+        let workerTab = 'feed';
+        let walletTab = 'balance';
+
+        window.setWorkerTab = function(tab) {
+            if (tab === 'metas') return;
+            workerTab = tab;
+            window.render();
+        };
+
+        window.setWalletTab = function(tab) {
+            walletTab = tab;
+            window.render();
+            if (tab === 'balance') setTimeout(initWalletChart, 100);
+        };
+
+        window.toggleCardDetails = function() {
+            window.state.showCardDetails = !window.state.showCardDetails;
+            window.render();
+        };
+
+        window.openEditCardModal = function() {
+            window.state.showEditCardModal = true;
+            window.render();
+        };
+
+        window.closeEditCardModal = function() {
+            window.state.showEditCardModal = false;
+            window.render();
+        };
+
+        window.verDetallesMovimiento = function(m, usuario) {
+            const modal = document.getElementById('modalDetalleMovimiento');
+            if (!modal) return;
+
+            let isRetiro = m.tipo === 'retiro';
+            let isBono = m.referencia && m.referencia.startsWith('REF-BONO');
+            let bonoNombre = isBono ? (m.bonoNombre || (m.descripcion ? m.descripcion.replace('Aceptación de Bono:', '').trim() : 'Bono')) : '';
+
+            let billeteraOrigen = isRetiro ? `V-${usuario.cedula}` : 'Billetera Externa';
+            let billeteraDestino = `V-${usuario.cedula}`;
+            let descripcionTexto = isBono ? bonoNombre : (m.descripcion || 'Operación procesada');
+            let cuentaBancariaHtml = '';
+
+            if (isRetiro) {
+                let dest = m.destinoRetiro || '';
+                let bancoDestino = 'UbiiApp';
+                let ctaBancariaVal = usuario.email;
+
+                if (dest.includes('Ubii') || dest.includes('correo') || dest.includes('@')) {
+                    bancoDestino = 'UbiiApp';
+                    ctaBancariaVal = dest.includes(':') ? dest.split(':')[1].trim() : (dest.includes('@') ? dest : usuario.email);
+                } else if (dest) {
+                    let dashIdx = dest.lastIndexOf('-');
+                    if (dashIdx !== -1) {
+                        bancoDestino = dest.substring(0, dashIdx).trim();
+                        ctaBancariaVal = dest.substring(dashIdx + 1).trim();
+                    } else {
+                        bancoDestino = dest.trim();
+                        ctaBancariaVal = 'N/A';
+                    }
+                }
+                billeteraDestino = bancoDestino;
+
+                cuentaBancariaHtml = `
+                    <div class="space-y-1 pt-1">
+                        <span class="text-gray-500 font-semibold">Cuenta Bancaria:</span>
+                        <p class="text-gray-800 font-mono">${ctaBancariaVal}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-gray-500 font-semibold">Titular de la Cuenta Bancaria:</span>
+                        <p class="text-gray-800">V-${usuario.cedula} - ${usuario.nombre} ${usuario.apellido}</p>
+                    </div>
+                `;
+            }
+
+            modal.classList.remove('hidden');
+            modal.innerHTML = `
+                <div class="bg-white text-gray-900 p-6 rounded-3xl max-w-sm w-full shadow-2xl relative space-y-3 font-sans border border-gray-200 m-4">
+                    <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                        <h3 class="font-bold text-sm text-gray-900">Detalles de Transferencia</h3>
+                        <button onclick="window.cerrarModalMovimiento()" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+
+                    <div class="space-y-2 text-[11px]">
+                        <div class="flex justify-between py-1 border-b border-gray-100">
+                            <span class="text-gray-500 font-semibold">Fecha:</span>
+                            <span class="font-mono text-gray-800">${m.fecha}</span>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-gray-100">
+                            <span class="text-gray-500 font-semibold">Referencia:</span>
+                            <span class="font-mono text-gray-800 font-bold">${m.referencia}</span>
+                        </div>
+
+                        <div class="pt-1">
+                            <p class="font-bold text-gray-700 uppercase tracking-wider text-[10px] mb-1.5">Datos de la operación</p>
+                            <div class="space-y-1.5 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                                <div class="flex justify-between"><span class="text-gray-500">Monto:</span><span class="font-mono font-bold text-gray-900">${m.monto.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs.</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Origen:</span><span class="font-bold text-gray-900">${billeteraOrigen}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Destino:</span><span class="font-bold text-gray-900">${isRetiro ? billeteraDestino : 'V-' + usuario.cedula}</span></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-gray-500 font-semibold">Descripción:</span>
+                            <p class="text-gray-800 font-medium bg-gray-50 p-2.5 rounded-xl border border-gray-100">${descripcionTexto}</p>
+                        </div>
+
+                        ${cuentaBancariaHtml}
+                    </div>
+
+                    <div class="flex gap-2 pt-3 border-t border-gray-100">
+                        <button onclick="window.cerrarModalMovimiento()" class="flex-1 py-2.5 bg-gray-400 hover:bg-gray-500 text-white font-bold text-[11px] rounded-xl shadow transition">CERRAR</button>
+                        <button onclick='window.generarVoucherPDF(${JSON.stringify(m)}, ${JSON.stringify({nombre: usuario.nombre, apellido: usuario.apellido, cedula: usuario.cedula, email: usuario.email})})' class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] rounded-xl shadow transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
+                </div>
+            `;
+        };
+
+        window.cerrarModalMovimiento = function() {
+            const modal = document.getElementById('modalDetalleMovimiento');
+            if (modal) { modal.classList.add('hidden'); modal.innerHTML = ''; }
+        };
+
+        window.buscarTrabajadorAfiliar = function(e, miCedula) {
+            e.preventDefault();
+            const inputVal = document.getElementById('contactIdInput').value.trim().toUpperCase();
+            let foundWorker = null;
+            Object.values(window.state.workers).forEach(w => {
+                if (w.cedula === inputVal || w.cedula === inputVal.replace('-', '') || w.email === inputVal) foundWorker = w;
+            });
+            if (!foundWorker) { window.state.searchErrorMsg = 'No se encontró ningún compañero.'; window.state.pendingContact = null; window.render(); return; }
+            if (foundWorker.cedula === miCedula) { window.state.searchErrorMsg = 'No puedes afiliarte a ti mismo.'; window.state.pendingContact = null; window.render(); return; }
+            const activeWorker = getActiveWorkerData();
+            if (activeWorker.contactosAfiliados && activeWorker.contactosAfiliados.some(c => c.cedula === foundWorker.cedula)) { window.state.searchErrorMsg = 'Este compañero ya está afiliado.'; window.state.pendingContact = null; window.render(); return; }
+            window.state.searchErrorMsg = '';
+            window.state.pendingContact = { nombre: foundWorker.nombre + ' ' + foundWorker.apellido, cedula: foundWorker.cedula, email: foundWorker.email };
+            window.render();
+        };
+
+        window.confirmarAfiliacion = function(miCedula) {
+            const pending = window.state.pendingContact;
+            if (!pending) return;
+            const workerKey = getWorkerFirebaseRefKey(miCedula);
+            const worker = getActiveWorkerData();
+            if (!worker.contactosAfiliados) worker.contactosAfiliados = [];
+            worker.contactosAfiliados.push({ nombre: pending.nombre, cedula: pending.cedula });
+            window.fb.set(window.fb.ref(window.fb.db, 'workers/' + workerKey), worker).then(() => {
+                window.state.pendingContact = null; window.state.searchErrorMsg = ''; window.showToast('Compañero afiliado con éxito.', 'success'); window.render();
+            });
+        };
+
+        window.cancelarAfiliacion = function() { window.state.pendingContact = null; window.state.searchErrorMsg = ''; window.render(); };
+
+        window.removeContact = function(miCedula, index) {
+            const workerKey = getWorkerFirebaseRefKey(miCedula);
+            const worker = getActiveWorkerData();
+            worker.contactosAfiliados.splice(index, 1);
+            window.fb.set(window.fb.ref(window.fb.db, 'workers/' + workerKey), worker).then(() => { window.showToast('Contacto eliminado.', 'success'); window.render(); });
+        };
+
+        window.handleAddAccount = function(e, miCedula) {
+            e.preventDefault();
+            const workerKey = getWorkerFirebaseRefKey(miCedula);
+            const worker = getActiveWorkerData();
+            if (!worker.cuentasBancarias) worker.cuentasBancarias = [];
+            worker.cuentasBancarias.push({ banco: document.getElementById('bancoSelect').value, numero: document.getElementById('numCuenta').value.trim() });
+            window.fb.set(window.fb.ref(window.fb.db, 'workers/' + workerKey), worker).then(() => { window.showToast('Cuenta agregada.', 'success'); window.render(); });
+        };
+
+        window.removeAccount = function(cedula, index) {
+            const workerKey = getWorkerFirebaseRefKey(cedula);
+            const worker = getActiveWorkerData();
+            worker.cuentasBancarias.splice(index, 1);
+            window.fb.set(window.fb.ref(window.fb.db, 'workers/' + workerKey), worker).then(() => { window.showToast('Cuenta eliminada.', 'success'); window.render(); });
+        };
+
+        window.handleSolicitarConstancia = function(e, cedula) {
+            e.preventDefault();
+            const workerKey = getWorkerFirebaseRefKey(cedula);
+            const dirigida = document.getElementById('constanciaDirigida').value.trim();
+            const worker = getActiveWorkerData();
+            if (!worker.solicitudesConstancia) worker.solicitudesConstancia = [];
+            worker.solicitudesConstancia.unshift({ id: 'const_' + Date.now(), dirigida, estatus: 'En Revisión (24-48 hrs)', fecha: new Date().toLocaleDateString(), pdfData: null, pdfName: null });
+            window.fb.set(window.fb.ref(window.fb.db, 'workers/' + workerKey), worker).then(() => { window.showToast('Solicitud enviada.', 'success'); window.render(); });
+        };
+
+        window.descargarConstanciaAdmin = function(base64Data, fileName) {
+            const link = document.createElement('a'); link.href = base64Data; link.download = fileName; document.body.appendChild(link); link.click(); document.body.removeChild(link); window.showToast('Constancia descargada.', 'success');
+        };
+
+        window.handleReportarPagoCredito = function(e, cedula) {
+            e.preventDefault();
+            const tipoPago = document.getElementById('tipoPagoCredito').value;
+            const referencia = document.getElementById('refPagoCredito').value.trim();
+            const monto = parseFloat(document.getElementById('montoPagoCredito').value.replace(/\./g, '').replace(',', '.'));
+            const file = document.getElementById('capturaPagoCredito').files[0];
+            if (!file || isNaN(monto)) { window.showToast('Completa todos los campos.', 'error'); return; }
+            const reader = new FileReader();
+            reader.onload = function(uploadEvent) {
+                const pagoId = 'pago_' + Date.now();
+                const nuevoPago = { id: pagoId, cedula, tipoPago, referencia, monto, captura: uploadEvent.target.result, estatus: 'En Proceso de Verificación', fecha: new Date().toLocaleDateString() };
+                window.fb.set(window.fb.ref(window.fb.db, `pagosCredito/${pagoId}`), nuevoPago).then(() => { window.showToast('Pago reportado para verificación.', 'success'); e.target.reset(); window.render(); });
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.enviarMensajeChat = function(e, cedula) {
+            e.preventDefault();
+            const workerKey = getWorkerFirebaseRefKey(cedula);
+            const texto = document.getElementById('chatInputText').value.trim();
+            if (!texto) return;
+            if (!window.state.chats[workerKey]) window.state.chats[workerKey] = [];
+            window.state.chats[workerKey].push({ remitente: 'worker', texto, fecha: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+            window.fb.set(window.fb.ref(window.fb.db, 'chats/' + workerKey), window.state.chats[workerKey]).then(() => { document.getElementById('chatInputText').value = ''; window.render(); });
+        };
+
+        window.generarEstadoCuentaPDF = function(usuario) {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF(); const movimientos = usuario.movimientos || [];
+            doc.setFillColor(12, 10, 29); doc.rect(0, 0, 210, 45, 'F');
+            doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text('FUTURO AHORA | ESTADO DE CUENTA CONSOLIDADO', 15, 22);
+            doc.setFontSize(10); doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 15, 32);
+            doc.setTextColor(50, 50, 50); doc.setFontSize(11);
+            doc.text(`Titular: ${usuario.nombre} ${usuario.apellido}`, 15, 58);
+            doc.text(`Cédula: ${usuario.cedula}`, 15, 65);
+            doc.text(`Saldo: ${(usuario.saldo || 0).toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs.`, 15, 72);
+            doc.setDrawColor(200, 200, 200); doc.line(15, 80, 195, 80);
+            let startY = 90; doc.setFont('helvetica', 'bold');
+            doc.text('Fecha', 15, startY); doc.text('Descripción', 45, startY); doc.text('Monto (Bs.)', 160, startY);
+            doc.setFont('helvetica', 'normal');
+            movimientos.forEach(m => {
+                startY += 10; if (startY > 270) { doc.addPage(); startY = 20; }
+                doc.text(m.fecha, 15, startY); doc.text(`${m.descripcion} (${m.referencia})`, 45, startY, {maxWidth: 110});
+                const signo = m.tipo === 'retiro' || m.tipo === 'transferencia_enviada' ? '-' : '+';
+                doc.text(`${signo}${m.monto.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs.`, 160, startY);
+            });
+            doc.save(`Estado_Cuenta_${usuario.cedula}.pdf`); window.showToast('Estado de cuenta PDF generado.', 'success');
+        };
+
+        window.generarVoucherPDF = function(transaccion, usuario) {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            doc.setFillColor(12, 10, 29); doc.rect(0, 0, 210, 40, 'F');
+            doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.text('FUTURO AHORA | COMPROBANTE', 15, 22);
+            doc.setTextColor(100, 100, 100); doc.setFontSize(10); doc.text(`Fecha: ${transaccion.fecha} | Ref: ${transaccion.referencia}`, 15, 50);
+            doc.setDrawColor(200, 200, 200); doc.line(15, 60, 195, 60);
+            doc.setTextColor(30, 30, 30); doc.setFontSize(12); doc.text('TITULAR:', 15, 75);
+            doc.setFont('helvetica', 'normal'); doc.text(`${usuario.nombre} ${usuario.apellido} (CI: ${usuario.cedula})`, 15, 83);
+            doc.setFont('helvetica', 'bold'); doc.text('DETALLE:', 15, 105);
+            doc.setFont('helvetica', 'normal'); doc.text(`${transaccion.descripcion}`, 15, 113);
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.text(`Monto: ${transaccion.monto.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs.`, 15, 130);
+            doc.save(`Comprobante_${transaccion.referencia}.pdf`); window.showToast('Comprobante PDF descargado.', 'success');
+        };
+
+        window.handleWithdraw = function(e, miCedula) {
+            e.preventDefault();
+            const workerKey = getWorkerFirebaseRefKey(miCedula);
+            const worker = getActiveWorkerData();
+            const monto = parseFloat(document.getElementById('montoRetiro').value.replace(/\./g, '').replace(',', '.'));
+            const cuenta = document.getElementById('cuentaRetiroSelect').value;
+            const concepto = document.getElementById('conceptoRetiro').value.trim();
+
+            if (!cuenta || isNaN(monto) || monto <= 0) { window.showToast('Datos inválidos.', 'error'); return; }
+            if ((worker.saldo || 0) < monto) { window.showToast('Saldo insuficiente.', 'error'); return; }
+
+            worker.saldo -= monto;
+            if (!worker.movimientos) worker.movimientos = [];
+            worker.movimientos.unshift({
+                id: 'mov_ret_' + Date.now(),
+                descripcion: concepto ? concepto : `Retiro procesado a ${cuenta}`,
+                destinoRetiro: cuenta,
+                monto,
+                tipo: 'retiro',
+                fecha: new Date().toLocaleDateString(),
+                referencia: 'REF-RET-' + Math.floor(Math.random() * 900000 + 100000)
+            });
+
+            const updates = {};
+            updates[`workers/${workerKey}/saldo`] = worker.saldo;
+            updates[`workers/${workerKey}/movimientos`] = worker.movimientos;
+
+            window.fb.update(window.fb.ref(window.fb.db), updates).then(() => {
+                document.getElementById('montoRetiro').value = '';
+                document.getElementById('conceptoRetiro').value = '';
+                window.showToast('Retiro procesado.', 'success');
+                window.render();
+            }).catch(err => window.showToast('Error: ' + err.message, 'error'));
+        };
+
+        window.handleTransferUser = function(e, miCedula, destCedulaParam = null) {
+            if (e) e.preventDefault();
+            const destinoCedula = destCedulaParam || document.getElementById('transferDestSelect').value;
+            const montoRaw = document.getElementById(destCedulaParam ? 'transferMonto_' + destCedulaParam : 'transferMonto').value;
+            const monto = parseFloat(montoRaw.replace(/\./g, '').replace(',', '.'));
+
+            if (!destinoCedula || isNaN(monto) || monto <= 0) { window.showToast('Datos inválidos.', 'error'); return; }
+            if (miCedula === destinoCedula) { window.showToast('No puedes transferirte a ti mismo.', 'error'); return; }
+
+            const emisorKey = getWorkerFirebaseRefKey(miCedula);
+            const receptorKey = getWorkerFirebaseRefKey(destinoCedula);
+            const emisor = window.state.workers[emisorKey];
+            const receptor = window.state.workers[receptorKey];
+
+            if (!emisor || (emisor.saldo || 0) < monto) { window.showToast('Saldo insuficiente.', 'error'); return; }
+            if (!receptor) { window.showToast('Destinatario no encontrado.', 'error'); return; }
+
+            emisor.saldo -= monto;
+            if (!emisor.movimientos) emisor.movimientos = [];
+            emisor.movimientos.unshift({ id: 'mov_' + Date.now(), descripcion: `Transferencia enviada`, monto, tipo: 'transferencia_enviada', fecha: new Date().toLocaleDateString(), referencia: 'REF-TRF-' + Math.floor(Math.random() * 900000 + 100000) });
+
+            receptor.saldo = (parseFloat(receptor.saldo) || 0) + monto;
+            if (!receptor.movimientos) receptor.movimientos = [];
+            receptor.movimientos.unshift({ id: 'mov_' + Date.now(), descripcion: `Transferencia recibida`, monto, tipo: 'transferencia_recibida', fecha: new Date().toLocaleDateString(), referencia: 'REF-TRF-' + Math.floor(Math.random() * 900000 + 100000) });
+
+            const updates = {};
+            updates[`workers/${emisorKey}/saldo`] = emisor.saldo;
+            updates[`workers/${emisorKey}/movimientos`] = emisor.movimientos;
+            updates[`workers/${receptorKey}/saldo`] = receptor.saldo;
+            updates[`workers/${receptorKey}/movimientos`] = receptor.movimientos;
+
+            window.fb.update(window.fb.ref(window.fb.db), updates).then(() => {
+                window.showToast('Transferencia exitosa.', 'success');
+                window.render();
+            }).catch(err => window.showToast('Error: ' + err.message, 'error'));
+        };
+
+        window.setFiltroMovimiento = function(filtro) { window.state.filtroMovimiento = filtro; window.render(); };
+        window.setBusquedaMovimiento = function(val) { window.state.busquedaMovimiento = val.toLowerCase(); window.render(); };
+
+        function initWalletChart() {
+            const canvas = document.getElementById('walletChart');
+            if (!canvas) return;
+            const w = getActiveWorkerData() || window.state.currentUser || {};
+            const movimientos = w.movimientos || [];
+            let totalIngresos = 0;
+            let totalRetiros = 0;
+
+            movimientos.forEach(m => {
+                if (m.tipo === 'ingreso' || m.tipo === 'transferencia_recibida') totalIngresos += m.monto;
+                else if (m.tipo === 'retiro' || m.tipo === 'transferencia_enviada') totalRetiros += m.monto;
+            });
+
+            if (totalIngresos === 0 && totalRetiros === 0) totalIngresos = 1;
+
+            if (window.myWalletChartInstance instanceof Chart) {
+                window.myWalletChartInstance.destroy();
+            }
+
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-primary').trim() || '#8b5cf6';
+            const legendColor = document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#334155';
+
+            window.myWalletChartInstance = new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ingresos', 'Retiros'],
+                    datasets: [{
+                        data: [totalIngresos, totalRetiros],
+                        backgroundColor: ['#10b981', primaryColor],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: legendColor, font: { size: 10, family: 'Inter', weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+
+        // ================= FUNCIÓN ACEPTAR BONO ROBUSTA (MULTI-PATH UPDATE) ================= //
+        window.aceptarBono = function(cedula, bonoKey) {
+            const workerKey = getWorkerFirebaseRefKey(cedula);
+            const worker = getActiveWorkerData();
+
+            if (!worker) {
+                window.showToast('Error: No se encontró la sesión del trabajador.', 'error');
+                return;
+            }
+
+            const bonos = worker.bonosAsignados || worker.bonos || {};
+            if (!bonos[bonoKey]) {
+                window.showToast('El bono no existe.', 'error');
+                return;
+            }
+
+            if (bonos[bonoKey].aceptado) {
+                window.showToast('Este bono ya ha sido aceptado anteriormente.', 'info');
+                return;
+            }
+
+            bonos[bonoKey].aceptado = true;
+            if (worker.bonosAsignados) worker.bonosAsignados = bonos;
+            else worker.bonos = bonos;
+
+            const montoBono = parseFloat(bonos[bonoKey].monto) || 0;
+            const nombreBono = bonos[bonoKey].nombre || 'Bono';
+            worker.saldo = (parseFloat(worker.saldo) || 0) + montoBono;
+
+            if (!worker.movimientos) worker.movimientos = [];
+            worker.movimientos.unshift({
+                id: 'mov_' + Date.now(),
+                descripcion: nombreBono,
+                bonoNombre: nombreBono,
+                monto: montoBono,
+                tipo: 'ingreso',
+                fecha: new Date().toLocaleDateString(),
+                referencia: 'REF-BONO-' + Math.floor(Math.random() * 900000 + 100000)
+            });
+
+            const updates = {};
+            updates[`workers/${workerKey}/bonosAsignados/${bonoKey}/aceptado`] = true;
+            updates[`workers/${workerKey}/saldo`] = worker.saldo;
+            updates[`workers/${workerKey}/movimientos`] = worker.movimientos;
+
+            window.fb.update(window.fb.ref(window.fb.db), updates)
+                .then(() => {
+                    if (typeof confetti === 'function') {
+                        confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+                    }
+                    window.showToast('¡Bono acreditado en billetera con éxito!', 'success');
+                    window.render();
+                })
+                .catch((err) => {
+                    console.error("Error al aceptar bono:", err);
+                    window.showToast('Error al acreditar el bono: ' + err.message, 'error');
+                });
+        };
+
+        window.goToHistoryFromBalance = function() {
+            walletTab = 'history';
+            window.render();
+        };
+
+        function renderWorkerDashboard() {
+            const currentWorkerData = getActiveWorkerData() || window.state.currentUser;
+            const notifs = window.state.notifications[currentWorkerData.cedula] || window.state.notifications[getWorkerFirebaseRefKey(currentWorkerData.cedula)] || [];
+            const unreadCount = notifs.filter(n => !n.leida).length;
+
+            return `
+                <div class="h-full app-surface-bg flex flex-col overflow-hidden">
+                    <header class="app-topbar-bg safe-top backdrop-blur-xl border-b px-4 py-2.5 flex justify-between items-center shrink-0">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-9 h-9 rounded-2xl overflow-hidden bg-white p-1 flex items-center justify-center shadow-lg border border-slate-200">
+                                <img src="${OFFICIAL_LOGO_URL}" alt="Logo Oficial Futuro Ahora" class="w-full h-full object-contain rounded-[0.65rem]">
+                            </div>
+                            <div>
+                                <h3 class="font-black text-xs truncate max-w-[140px]">${currentWorkerData.nombre}</h3>
+                                <p class="text-[9px] label-secondary font-mono font-bold">CI: ${currentWorkerData.cedula}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="window.toggleDarkMode()" class="w-8 h-8 rounded-xl icon-btn-neutral text-xs font-bold hover:opacity-90 transition flex items-center justify-center" title="Cambiar Modo Claro/Oscuro">
+                                <i class="fa-solid fa-moon dark:fa-sun"></i>
+                            </button>
+                            <button onclick="window.logoutWorker()" class="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-500 dark:text-rose-400 border border-rose-500/30 text-xs font-bold hover:bg-rose-500/25 transition flex items-center justify-center" title="Cerrar sesión">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                            </button>
+                        </div>
+                    </header>
+
+                    <nav class="app-topbar-bg border-b px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+                        <button onclick="window.setWorkerTab('feed')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='feed'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-newspaper"></i> Feed</button>
+                        <button onclick="window.setWorkerTab('kambio')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='kambio'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-coins"></i> Kambio</button>
+                        <button onclick="window.setWorkerTab('bonos')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='bonos'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-gift"></i> Bonos</button>
+                        <button onclick="window.setWorkerTab('billetera')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='billetera'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-wallet"></i> Billetera</button>
+                        <button onclick="window.setWorkerTab('credito')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='credito'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-hand-holding-dollar"></i> Crédito</button>
+                        <button onclick="window.setWorkerTab('carnet')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='carnet'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-id-badge"></i> Carnet</button>
+                        <button onclick="window.setWorkerTab('constancias')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='constancias'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-file-lines"></i> Constancia</button>
+                        <button onclick="window.setWorkerTab('chat')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='chat'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-comments"></i> Soporte</button>
+                        <button onclick="window.setWorkerTab('notif')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='notif'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-bell"></i> Alertas ${unreadCount > 0 ? `<span class="px-1.5 py-0.2 bg-rose-500 text-white text-[9px] rounded-full font-black">${unreadCount}</span>` : ''}</button>
+                        <button onclick="window.setWorkerTab('perfil')" class="px-3 py-1.5 rounded-xl text-[10px] font-extrabold whitespace-nowrap transition flex items-center gap-1.5 ${workerTab==='perfil'?'neon-gradient-btn text-white':'nav-pill-idle'}"><i class="fa-solid fa-gear"></i> Perfil</button>
+                    </nav>
+
+                    <main class="flex-1 p-3.5 overflow-y-auto w-full">
+                        ${workerTab === 'feed' ? renderWorkerFeed() : ''}
+                        ${workerTab === 'kambio' ? renderKambioYimmiView() : ''}
+                        ${workerTab === 'bonos' ? renderWorkerBonuses(currentWorkerData) : ''}
+                        ${workerTab === 'billetera' ? renderWorkerWallet(currentWorkerData) : ''}
+                        ${workerTab === 'credito' ? renderWorkerCredit(currentWorkerData) : ''}
+                        ${workerTab === 'carnet' ? renderWorkerCarnet(currentWorkerData) : ''}
+                        ${workerTab === 'constancias' ? renderWorkerConstancia(currentWorkerData) : ''}
+                        ${workerTab === 'chat' ? renderWorkerChat(currentWorkerData) : ''}
+                        ${workerTab === 'notif' ? renderWorkerNotifications(currentWorkerData) : ''}
+                        ${workerTab === 'perfil' ? renderWorkerProfile(currentWorkerData) : ''}
+                    </main>
+
+                    <footer class="app-topbar-bg backdrop-blur-xl border-t px-2 pt-1.5 safe-bottom shrink-0 grid grid-cols-5 gap-1 text-center">
+                        <button onclick="window.setWorkerTab('billetera')" class="flex flex-col items-center justify-center py-1.5 rounded-2xl transition ${workerTab==='billetera'?'label-secondary theme-pill':'opacity-70 hover:opacity-100'}">
+                            <i class="fa-solid fa-wallet text-sm"></i>
+                            <span class="text-[9px] font-extrabold mt-0.5">Billetera</span>
+                        </button>
+                        <button onclick="window.setWorkerTab('bonos')" class="flex flex-col items-center justify-center py-1.5 rounded-2xl transition ${workerTab==='bonos'?'label-secondary theme-pill':'opacity-70 hover:opacity-100'}">
+                            <i class="fa-solid fa-gift text-sm"></i>
+                            <span class="text-[9px] font-extrabold mt-0.5">Bonos</span>
+                        </button>
+                        <button onclick="window.setWorkerTab('kambio')" class="flex flex-col items-center justify-center py-1.5 rounded-2xl transition ${workerTab==='kambio'?'label-secondary theme-pill':'opacity-70 hover:opacity-100'}">
+                            <i class="fa-solid fa-coins text-sm"></i>
+                            <span class="text-[9px] font-extrabold mt-0.5">Kambio</span>
+                        </button>
+                        <button onclick="window.setWorkerTab('credito')" class="flex flex-col items-center justify-center py-1.5 rounded-2xl transition ${workerTab==='credito'?'label-secondary theme-pill':'opacity-70 hover:opacity-100'}">
+                            <i class="fa-solid fa-hand-holding-dollar text-sm"></i>
+                            <span class="text-[9px] font-extrabold mt-0.5">Crédito</span>
+                        </button>
+                        <button onclick="window.setWorkerTab('perfil')" class="flex flex-col items-center justify-center py-1.5 rounded-2xl transition ${workerTab==='perfil'?'label-secondary theme-pill':'opacity-70 hover:opacity-100'}">
+                            <i class="fa-solid fa-user text-sm"></i>
+                            <span class="text-[9px] font-extrabold mt-0.5">Perfil</span>
+                        </button>
+                    </footer>
+
+                    ${window.state.showEditCardModal ? `
+                        <div class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+                            <div class="glass-panel p-6 rounded-3xl max-w-sm w-full cyber-glow shadow-2xl relative space-y-4">
+                                <div class="flex justify-between items-center pb-2.5 border-b border-current/15">
+                                    <h3 class="font-black text-sm label-secondary">Editar Tarjeta Ubii</h3>
+                                    <button onclick="window.closeEditCardModal()" class="w-7 h-7 rounded-full icon-btn-neutral flex items-center justify-center font-bold"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                                <form id="formEditCard" class="space-y-3">
+                                    <div>
+                                        <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider">Número</label>
+                                        <input type="text" id="modalCardNum" value="${currentWorkerData.tarjeta?.numero || ''}" required placeholder="4532 •••• •••• ••••" class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs font-mono">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="text-[10px] label-secondary font-extrabold uppercase tracking-wider">Expiración</label>
+                                            <input type="text" id="modalCardExp" value="${currentWorkerData.tarjeta?.expiracion || ''}" required placeholder="MM/AA" class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs font-mono">
+                                        </div>
+                                        <div>
+                                            <label class="text-[10px] label-primary font-extrabold uppercase tracking-wider">CVV</label>
+                                            <input type="text" id="modalCardCvv" value="${currentWorkerData.tarjeta?.cvv || ''}" required maxlength="4" placeholder="123" class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs font-mono">
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-2 pt-3 border-t border-current/15">
+                                        <button type="button" onclick="window.closeEditCardModal()" class="flex-1 py-3 icon-btn-neutral font-bold text-xs rounded-xl">Cancelar</button>
+                                        <button type="submit" class="flex-1 py-3 neon-gradient-btn font-bold text-xs rounded-xl shadow-lg">Guardar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderWorkerFeed() {
+            const anuncios = window.state.anuncios || {};
+            const keys = Object.keys(anuncios);
+            return `
+                <div class="space-y-3.5 pb-6">
+                    <div class="flex items-center justify-between px-1">
+                        <h2 class="text-base font-black title-gradient">Novedades</h2>
+                        <span class="text-[9px] font-black uppercase tracking-widest theme-pill px-2.5 py-0.5 rounded-full">Feed</span>
+                    </div>
+                    <div class="space-y-3">
+                        ${keys.length === 0 ? `
+                            <div class="glass-panel p-5 rounded-3xl shadow-xl space-y-2 cyber-glow">
+                                <span class="text-[10px] theme-pill px-3 py-0.5 rounded-full font-extrabold inline-block">Aviso Oficial</span>
+                                <h3 class="font-black text-sm">¡Bienvenidos a Futuro Ahora Mobile!</h3>
+                                <p class="text-xs opacity-80 leading-relaxed">Disfruta de la vista móvil optimizada con conversor multimoneda, billetera y acceso rápido a tus beneficios.</p>
+                            </div>
+                        ` : keys.map(id => {
+                            const a = anuncios[id];
+                            return `<div class="glass-panel p-5 rounded-3xl shadow-xl space-y-2 cyber-glow"><span class="text-[10px] theme-pill px-3 py-0.5 rounded-full font-extrabold">${a.fecha || 'Novedad'}</span><h3 class="font-black text-sm">${a.titulo}</h3><p class="text-xs opacity-80 leading-relaxed">${a.mensaje}</p></div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWorkerWallet(w) {
+            let movimientos = w.movimientos || [];
+            const filtro = window.state.filtroMovimiento;
+            const busqueda = window.state.busquedaMovimiento;
+
+            if (filtro === 'ingresos') movimientos = movimientos.filter(m => m.tipo === 'ingreso' || m.tipo === 'transferencia_recibida');
+            else if (filtro === 'retiros') movimientos = movimientos.filter(m => m.tipo === 'retiro');
+            else if (filtro === 'transferencias') movimientos = movimientos.filter(m => m.tipo === 'transferencia_enviada' || m.tipo === 'transferencia_recibida');
+
+            if (busqueda) movimientos = movimientos.filter(m => m.descripcion.toLowerCase().includes(busqueda) || m.referencia.toLowerCase().includes(busqueda));
+
+            const cuentas = w.cuentasBancarias || [];
+            const contactos = w.contactosAfiliados || [];
+            const cardData = w.tarjeta || { numero: '', expiracion: '', cvv: '' };
+            const showDetails = window.state.showCardDetails;
+            const pending = window.state.pendingContact;
+            const errorMsg = window.state.searchErrorMsg;
+
+            setTimeout(() => {
+                if (walletTab === 'balance') initWalletChart();
+            }, 50);
+
+            return `
+                <div class="space-y-3.5 pb-6">
+                    <div class="grid grid-cols-5 gap-1 glass-panel p-1.5 rounded-2xl text-center">
+                        <button onclick="window.setWalletTab('balance')" class="py-2 rounded-xl text-[10px] font-black transition ${walletTab==='balance'?'neon-gradient-btn text-white':'opacity-75'}">Saldo</button>
+                        <button onclick="window.setWalletTab('card')" class="py-2 rounded-xl text-[10px] font-black transition ${walletTab==='card'?'neon-gradient-btn text-white':'opacity-75'}">Tarjeta</button>
+                        <button onclick="window.setWalletTab('withdraw')" class="py-2 rounded-xl text-[10px] font-black transition ${walletTab==='withdraw'?'neon-gradient-btn text-white':'opacity-75'}">Retirar</button>
+                        <button onclick="window.setWalletTab('transfers')" class="py-2 rounded-xl text-[10px] font-black transition ${walletTab==='transfers'?'neon-gradient-btn text-white':'opacity-75'}">Enviar</button>
+                        <button onclick="window.setWalletTab('history')" class="py-2 rounded-xl text-[10px] font-black transition ${walletTab==='history'?'neon-gradient-btn text-white':'opacity-75'}">Movs</button>
+                    </div>
+
+                    <div class="${walletTab === 'balance' ? 'block' : 'hidden'} space-y-3.5">
+                        <div onclick="window.goToHistoryFromBalance()" class="card-shimmer border border-white/25 p-5 rounded-3xl shadow-xl text-white cyber-glow flex flex-col justify-between cursor-pointer hover:brightness-105 transition">
+                            <div class="space-y-2 relative z-10">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[9px] uppercase tracking-widest text-white font-black bg-black/30 px-2.5 py-1 rounded-full">Cuenta Verificada</span>
+                                    <span class="text-[10px] font-mono text-white/80">Tasa: ${window.state.tasaBcv.toFixed(2)}</span>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] text-white/85 font-bold block">Saldo Disponible</span>
+                                    <h3 class="text-2xl font-black mt-0.5">${(w.saldo || 0).toLocaleString('es-VE', {minimumFractionDigits: 2})} <span class="text-sm font-semibold">Bs.</span> <i class="fa-solid fa-chevron-right text-xs opacity-75 ml-1"></i></h3>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-white/25 grid grid-cols-2 gap-2 relative z-10" onclick="event.stopPropagation()">
+                                <div><label class="text-[9px] text-white/90 font-black block mb-1">Bolívares (Bs.)</label><input type="number" step="0.01" id="convBs" oninput="document.getElementById('convUsd').value=(this.value/${window.state.tasaBcv}).toFixed(2)" placeholder="0.00" class="w-full bg-black/65 border border-white/20 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono"></div>
+                                <div><label class="text-[9px] text-white/90 font-black block mb-1">Dólares ($)</label><input type="number" step="0.01" id="convUsd" oninput="document.getElementById('convBs').value=(this.value*${window.state.tasaBcv}).toFixed(2)" placeholder="0.00" class="w-full bg-black/65 border border-white/20 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono"></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="window.setWalletTab('withdraw')" class="glass-panel p-3 rounded-2xl flex flex-col items-center gap-1.5 text-center hover:opacity-95 transition">
+                                <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-xs"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
+                                <span class="text-[10px] font-black">Retirar</span>
+                            </button>
+                            <button onclick="window.setWalletTab('transfers')" class="glass-panel p-3 rounded-2xl flex flex-col items-center gap-1.5 text-center hover:opacity-95 transition">
+                                <div class="w-8 h-8 rounded-xl theme-pill flex items-center justify-center text-xs"><i class="fa-solid fa-paper-plane"></i></div>
+                                <span class="text-[10px] font-black">Transferir</span>
+                            </button>
+                            <button onclick="window.setWorkerTab('bonos')" class="glass-panel p-3 rounded-2xl flex flex-col items-center gap-1.5 text-center hover:opacity-95 transition">
+                                <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-500 flex items-center justify-center text-xs"><i class="fa-solid fa-gift"></i></div>
+                                <span class="text-[10px] font-black">Bonos</span>
+                            </button>
+                        </div>
+
+                        <div class="glass-panel p-4 rounded-3xl shadow-xl flex flex-col justify-between cyber-glow-blue">
+                            <h4 class="font-black text-xs label-secondary mb-2">Flujo Financiero</h4>
+                            <div class="relative h-36 w-full flex items-center justify-center">
+                                <canvas id="walletChart" class="w-full h-full"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="${walletTab === 'card' ? 'block' : 'hidden'} space-y-4">
+                        <div class="glass-panel p-5 rounded-3xl shadow-xl cyber-glow flex flex-col items-center">
+                            <h4 class="font-black text-sm mb-3 label-secondary">Tarjeta Ubii Mastercard</h4>
+                            <div class="relative w-52 rounded-2xl overflow-hidden shadow-2xl border border-current/25 aspect-[1/1.58] mb-4">
+                                <img src="https://i.postimg.cc/Lsyf7HM5/Screenshot-20261113-123853-Ub-App.png" alt="Ubii" class="absolute inset-0 w-full h-full object-cover">
+                            </div>
+                            ${showDetails ? `<div class="w-full p-3 bg-black/85 text-white rounded-xl space-y-1 text-[11px] font-mono mb-3 border border-white/15"><div class="flex justify-between"><span>N°:</span><span class="label-secondary">${cardData.numero || 'No configurado'}</span></div><div class="flex justify-between"><span>Exp:</span><span>${cardData.expiracion || 'MM/AA'}</span></div><div class="flex justify-between"><span>CVV:</span><span class="label-primary">${cardData.cvv || '•••'}</span></div></div>` : ''}
+                            <div class="flex gap-2 w-full">
+                                <button onclick="window.toggleCardDetails()" class="flex-1 py-3 neon-gradient-btn font-bold text-xs rounded-xl">${showDetails ? 'Ocultar' : 'Ver Datos'}</button>
+                                <button onclick="window.openEditCardModal()" class="flex-1 py-3 theme-pill font-bold text-xs rounded-xl">Editar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="${walletTab === 'withdraw' ? 'block' : 'hidden'} space-y-4">
+                        <div class="glass-panel p-5 rounded-3xl shadow-xl cyber-glow">
+                            <h4 class="font-black text-sm mb-3 text-emerald-500 dark:text-emerald-400">Retirar Fondos</h4>
+                            <form onsubmit="window.handleWithdraw(event, '${w.cedula}')" class="space-y-3">
+                                <div><label class="text-[10px] label-primary font-extrabold uppercase">Monto (Bs.)</label><input type="text" id="montoRetiro" oninput="window.formatCurrencyInput(this)" required placeholder="0,00" class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs font-mono"></div>
+                                <div><label class="text-[10px] label-secondary font-extrabold uppercase">Destino</label><select id="cuentaRetiroSelect" class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs"><option value="Ubii: ${w.email}">Ubii - ${w.email}</option>${cuentas.map(c => `<option value="${c.banco} - ${c.numero}">${c.banco}</option>`).join('')}</select></div>
+                                <div><label class="text-[10px] label-primary font-extrabold uppercase">Concepto (Opcional)</label><input type="text" id="conceptoRetiro" placeholder="Ej. Retiro personal" class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs"></div>
+                                <button type="submit" class="w-full py-3.5 bg-emerald-600 text-white font-black text-xs rounded-xl shadow-lg">Procesar Retiro</button>
+                            </form>
+                        </div>
+                        <div class="glass-panel p-5 rounded-3xl shadow-xl cyber-glow-blue">
+                            <h4 class="font-black text-sm mb-3 label-secondary">Cuentas Bancarias</h4>
+                            <form onsubmit="window.handleAddAccount(event, '${w.cedula}')" class="space-y-2.5 mb-4">
+                                <select id="bancoSelect" class="w-full neon-input rounded-xl px-3 py-2.5 text-xs">${BANCOS_VENEZUELA.map(b => `<option value="${b}">${b}</option>`).join('')}</select>
+                                <input type="text" id="numCuenta" required placeholder="N° Cuenta / Pago Móvil" class="w-full neon-input rounded-xl px-3 py-2.5 text-xs">
+                                <button type="submit" class="w-full py-3 neon-gradient-btn font-bold text-xs rounded-xl">Agregar Cuenta</button>
+                            </form>
+                            <div class="space-y-2 max-h-32 overflow-y-auto">
+                                ${cuentas.length === 0 ? `<p class="text-[11px] opacity-70">No hay cuentas.</p>` : cuentas.map((c, idx) => `<div class="flex justify-between items-center text-[11px] sub-box p-2.5 rounded-xl"><span><b>${c.banco}</b></span><button onclick="window.removeAccount('${w.cedula}', ${idx})" class="text-rose-500"><i class="fa-solid fa-trash"></i></button></div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="${walletTab === 'transfers' ? 'block' : 'hidden'} space-y-4">
+                        <div class="glass-panel p-5 rounded-3xl shadow-xl cyber-glow">
+                            <h4 class="font-black text-sm mb-3 label-primary">Afiliar Compañero</h4>
+                            <form onsubmit="window.buscarTrabajadorAfiliar(event, '${w.cedula}')" class="space-y-2.5">
+                                <div class="flex gap-2"><input type="text" id="contactIdInput" required placeholder="Cédula o Correo" class="flex-1 neon-input rounded-xl px-3 py-2.5 text-xs"><button type="submit" class="px-4 py-2.5 neon-gradient-btn font-bold text-xs rounded-xl">Buscar</button></div>
+                            </form>
+                            ${errorMsg ? `<div class="mt-2.5 p-2.5 bg-rose-500/15 text-rose-500 rounded-xl text-[11px] font-bold">${errorMsg}</div>` : ''}
+                            ${pending ? `<div class="mt-3 p-3 sub-box rounded-xl space-y-2"><p class="text-[11px] font-bold">${pending.name || pending.nombre} (${pending.cedula})</p><div class="flex gap-2"><button onclick="window.confirmarAfiliacion('${w.cedula}')" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-[11px]">Afiliar</button><button onclick="window.cancelarAfiliacion()" class="px-3 py-1.5 icon-btn-neutral text-[11px] rounded-lg">Cancelar</button></div></div>` : ''}
+                            <div class="mt-4 space-y-2">
+                                <p class="text-[10px] font-black label-secondary uppercase">Contactos Afiliados:</p>
+                                ${contactos.length === 0 ? `<p class="text-[11px] opacity-70">No tienes contactos.</p>` : contactos.map((c, idx) => `<div class="flex justify-between items-center text-[11px] sub-box p-2.5 rounded-xl"><span><b>${c.nombre}</b></span><div class="flex items-center gap-1.5"><input type="text" id="transferMonto_${c.cedula}" placeholder="Bs." class="w-16 neon-input px-2 py-1 rounded text-[10px]"><button onclick="window.handleTransferUser(null, '${w.cedula}', '${c.cedula}')" class="px-2.5 py-1 bg-emerald-600 text-white rounded"><i class="fa-solid fa-paper-plane"></i></button><button onclick="window.removeContact('${w.cedula}', ${idx})" class="text-rose-500"><i class="fa-solid fa-trash"></i></button></div></div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="glass-panel p-5 rounded-3xl shadow-xl cyber-glow-blue">
+                            <h4 class="font-black text-sm mb-3 text-emerald-500 dark:text-emerald-400">Transferencia Directa</h4>
+                            <form onsubmit="window.handleTransferUser(event, '${w.cedula}')" class="space-y-3">
+                                <div><label class="text-[10px] label-secondary uppercase font-bold">Destinatario</label><select id="transferDestSelect" required class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs"><option value="">-- Selecciona --</option>${contactos.map(c => `<option value="${c.cedula}">${c.nombre} (${c.cedula})</option>`).join('')}</select></div>
+                                <div><label class="text-[10px] label-primary uppercase font-bold">Monto (Bs.)</label><input type="text" id="transferMonto" oninput="window.formatCurrencyInput(this)" required placeholder="0,00" class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs font-mono"></div>
+                                <button type="submit" class="w-full py-3.5 bg-emerald-600 text-white font-black text-xs rounded-xl">Enviar Transferencia</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="${walletTab === 'history' ? 'block' : 'hidden'} space-y-4">
+                        <div class="glass-panel p-5 rounded-3xl shadow-xl cyber-glow space-y-3.5">
+                            <div class="flex justify-between items-center gap-2">
+                                <h4 class="font-black text-sm">Movimientos</h4>
+                                <button onclick='window.generarEstadoCuentaPDF(${JSON.stringify(w)})' class="px-3 py-2 neon-gradient-btn font-bold text-[11px] rounded-xl"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                            </div>
+                            <input type="text" oninput="window.setBusquedaMovimiento(this.value)" placeholder="Buscar movimiento o referencia..." class="w-full neon-input rounded-xl px-3 py-2.5 text-xs">
+                            <div class="space-y-2 max-h-64 overflow-y-auto">
+                                ${movimientos.length === 0 ? `<p class="text-[11px] opacity-70">No hay movimientos.</p>` : movimientos.map(m => `<div onclick='window.verDetallesMovimiento(${JSON.stringify(m)}, ${JSON.stringify({nombre: w.nombre, apellido: w.apellido, cedula: w.cedula, email: w.email, cuentasBancarias: w.cuentasBancarias})})' class="flex justify-between items-center p-3 sub-box hover:opacity-90 rounded-xl text-xs cursor-pointer"><div><p class="font-black">${m.descripcion}</p><p class="text-[10px] opacity-70 font-mono">${m.fecha}</p></div><span class="font-black font-mono ${m.tipo === 'retiro' || m.tipo === 'transferencia_enviada' ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}">${m.tipo === 'retiro' || m.tipo === 'transferencia_enviada' ? '-' : '+'}${m.monto.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs.</span></div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWorkerBonuses(workerObj) {
+            const currentData = getActiveWorkerData() || workerObj;
+            const bonos = (currentData && (currentData.bonosAsignados || currentData.bonos)) ? (currentData.bonosAsignados || currentData.bonos) : {};
+            let html = `<div class="flex items-center justify-between mb-3 px-1"><h2 class="text-base font-black title-gradient">Bonificaciones</h2><span class="text-[9px] font-black uppercase tracking-widest theme-pill px-2.5 py-0.5 rounded-full">Beneficios</span></div><div class="space-y-4 pb-6">`;
+
+            const esBonoBienvenida = (key, bono) => {
+                const k = (key || '').toLowerCase();
+                const n = (bono && bono.nombre ? bono.nombre : '').toLowerCase();
+                return k === 'bono_bienvenida' || n.includes('bienvenida');
+            };
+
+            const keys = Object.keys(bonos).filter(k => bonos[k] && typeof bonos[k] === 'object').sort((a, b) => {
+                const bonoA = bonos[a] || {};
+                const bonoB = bonos[b] || {};
+                const welcomeA = esBonoBienvenida(a, bonoA) ? 1 : 0;
+                const welcomeB = esBonoBienvenida(b, bonoB) ? 1 : 0;
+                if (welcomeA !== welcomeB) return welcomeA - welcomeB;
+
+                const acceptedA = bonoA.aceptado === true ? 1 : 0;
+                const acceptedB = bonoB.aceptado === true ? 1 : 0;
+                if (acceptedA !== acceptedB) return acceptedA - acceptedB;
+
+                return b.localeCompare(a);
+            });
+
+            if (keys.length === 0) {
+                html += `<div class="glass-panel p-6 rounded-3xl text-center"><p class="opacity-70 text-xs">No tienes bonificaciones asignadas actualmente.</p></div>`;
+            } else {
+                keys.forEach(key => {
+                    const b = bonos[key];
+                    const isAccepted = b.aceptado === true;
+                    html += `
+                        <div class="glass-panel p-4 rounded-3xl shadow-2xl flex flex-col cyber-glow space-y-3">
+                            ${b.imagen ? `
+                                <div class="w-full bg-black/95 relative rounded-2xl overflow-hidden shadow-xl flex items-center justify-center">
+                                    <img src="${b.imagen}" alt="${b.nombre || 'Bono'}" class="w-full h-auto max-h-[480px] object-contain rounded-xl">
+                                </div>
+                            ` : `
+                                <div class="p-5 card-shimmer text-white rounded-2xl">
+                                    <h3 class="font-black text-base">${b.nombre || 'Bono Corporativo'}</h3>
+                                    <p class="text-[11px] opacity-85 mt-1 font-mono">Monto: ${b.monto ? b.monto.toLocaleString('es-VE', {minimumFractionDigits: 2}) : '0,00'} Bs.</p>
+                                </div>
+                            `}
+                            ${!isAccepted ? `
+                                <div class="pt-0.5">
+                                    <button onclick="window.aceptarBono('${currentData.cedula}', '${key}')" class="w-full py-3.5 neon-gradient-btn font-black text-xs rounded-xl transition uppercase tracking-wider">ACEPTAR BONO</button>
+                                </div>
+                            ` : `<div class="text-center py-1.5 rounded-xl bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 text-[10px] font-black uppercase">Acreditado en Billetera</div>`}
+                        </div>
+                    `;
+                });
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        function renderWorkerCredit(w) {
+            return `
+                <div class="h-full flex flex-col justify-center items-center py-6 pb-10">
+                    <div class="w-full card-shimmer border border-white/25 p-7 rounded-[2rem] shadow-2xl text-white text-center space-y-4 cyber-glow relative z-10">
+                        <div class="w-16 h-16 rounded-2xl bg-black/30 border border-white/25 flex items-center justify-center mx-auto text-2xl text-white shadow-lg">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <span class="inline-block text-[10px] font-black uppercase tracking-widest text-white bg-black/35 px-3.5 py-1 rounded-full border border-white/20">CrediFuturo</span>
+                        <h2 class="text-xl font-black tracking-tight text-white">Próximamente</h2>
+                        <p class="text-xs text-white/90 leading-relaxed">El módulo de créditos, simulador de cuotas y reportes de pago estará disponible muy pronto en la app.</p>
+                        <div class="pt-2">
+                            <button type="button" onclick="window.setWorkerTab('billetera')" class="px-5 py-2.5 rounded-xl bg-black/45 hover:bg-black/65 border border-white/25 text-[11px] font-extrabold text-white transition">
+                                Volver a Billetera
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.handleRequestCredit = function(e, cedula) {
+            e.preventDefault();
+            const monto = parseFloat(document.getElementById('credMonto').value);
+            const concepto = document.getElementById('credConcepto').value.trim();
+            if (isNaN(monto) || monto <= 0) return;
+            if (!window.state.credits[cedula]) window.state.credits[cedula] = [];
+            window.state.credits[cedula].push({ monto, concepto, estatus: 'Pendiente' });
+            window.fb.set(window.fb.ref(window.fb.db, 'credits/' + cedula), window.state.credits[cedula]).then(() => {
+                window.showToast('Solicitud de crédito enviada.', 'success'); window.render();
+            });
+        };
+
+        function renderWorkerCarnet(w) {
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=FUTURO%20AHORA%20-%20CI:${w.cedula}`;
+            return `
+                <div class="space-y-4 pb-6 flex flex-col items-center">
+                    <h2 class="text-base font-black w-full px-1 title-gradient">Carnet Digital QR</h2>
+                    <div class="w-full max-w-xs card-shimmer border border-white/25 p-6 rounded-3xl shadow-2xl text-white text-center space-y-4 cyber-glow">
+                        <div class="flex justify-between items-center text-[10px] text-white/85 font-extrabold uppercase"><span>Futuro Ahora</span><span>Ubii</span></div>
+                        <div class="w-16 h-16 rounded-2xl bg-black/30 mx-auto flex items-center justify-center text-xl font-black">${w.nombre.charAt(0)}${w.apellido.charAt(0)}</div>
+                        <div><h3 class="text-sm font-black">${w.nombre} ${w.apellido}</h3><p class="text-[11px] text-white/85 font-mono mt-0.5">Cédula: ${w.cedula}</p></div>
+                        <div class="bg-white p-3 rounded-2xl inline-block"><img src="${qrUrl}" alt="QR" class="w-32 h-32 mx-auto"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWorkerConstancia(w) {
+            const solicitudes = w.solicitudesConstancia || [];
+            return `
+                <div class="space-y-4 pb-6">
+                    <h2 class="text-base font-black px-1 title-gradient">Constancia Laboral</h2>
+                    <div class="glass-panel p-5 rounded-3xl shadow-xl cyber-glow space-y-3">
+                        <h3 class="font-black text-xs label-secondary uppercase">Solicitar Constancia</h3>
+                        <form onsubmit="window.handleSolicitarConstancia(event, '${w.cedula}')" class="space-y-2.5">
+                            <input type="text" id="constanciaDirigida" required placeholder="Dirigida a..." class="w-full neon-input rounded-xl px-3 py-2.5 text-xs">
+                            <button type="submit" class="w-full py-3 neon-gradient-btn font-black text-xs rounded-xl">Enviar Solicitud</button>
+                        </form>
+                    </div>
+                    <div class="space-y-3">
+                        <h3 class="font-black text-xs px-1">Historial</h3>
+                        ${solicitudes.length === 0 ? `<p class="text-[11px] opacity-70 px-1">No hay solicitudes.</p>` : solicitudes.map(s => `
+                            <div class="glass-panel p-4 rounded-3xl space-y-2.5 cyber-glow-blue">
+                                <div class="flex justify-between items-center"><span class="font-bold text-xs">Para: ${s.dirigida}</span><span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold ${s.estatus === 'Aprobada' ? 'bg-emerald-500/15 text-emerald-500 dark:text-emerald-400' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'}">${s.estatus}</span></div>
+                                ${s.estatus === 'Aprobada' && s.pdfData ? `<button onclick="window.descargarConstanciaAdmin('${s.pdfData}', '${s.pdfName || 'Constancia.pdf'}')" class="px-3 py-1.5 neon-gradient-btn text-[11px] font-bold rounded-xl"><i class="fa-solid fa-file-pdf"></i> Descargar</button>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWorkerChat(w) {
+            const mensajes = window.state.chats[w.cedula] || [];
+            return `
+                <div class="space-y-3 h-full flex flex-col pb-2">
+                    <h2 class="text-base font-black px-1 title-gradient">Soporte Yimmy 24/7</h2>
+                    <div class="glass-panel p-4 rounded-3xl flex-1 flex flex-col justify-between shadow-xl min-h-[380px] cyber-glow">
+                        <div class="flex items-center gap-2.5 pb-3 border-b border-current/15"><div class="w-8 h-8 neon-gradient-btn rounded-xl flex items-center justify-center text-white text-xs"><i class="fa-solid fa-headset"></i></div><h3 class="font-black text-xs">Soporte Corporativo</h3></div>
+                        <div class="flex-1 overflow-y-auto py-3 space-y-3 pr-1">
+                            ${mensajes.length === 0 ? `<p class="text-center opacity-70 text-xs py-16">Escribe tu consulta y te responderemos pronto.</p>` : mensajes.map(m => `<div class="flex ${m.remitente === 'worker' ? 'justify-end' : 'justify-start'}"><div class="max-w-[85%] p-3 rounded-2xl text-xs ${m.remitente === 'worker' ? 'neon-gradient-btn text-white' : 'sub-box'}"><p>${m.texto}</p><span class="text-[9px] opacity-75 block text-right mt-1 font-mono">${m.fecha}</span></div></div>`).join('')}
+                        </div>
+                        <form onsubmit="window.enviarMensajeChat(event, '${w.cedula}')" class="pt-3 border-t border-current/15 flex gap-2">
+                            <input type="text" id="chatInputText" required placeholder="Escribe tu mensaje..." class="flex-1 neon-input rounded-xl px-3 py-2.5 text-xs">
+                            <button type="submit" class="px-4 py-2.5 neon-gradient-btn font-bold text-xs rounded-xl"><i class="fa-solid fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.marcarNotificacionesLeidas = function(cedula) {
+            const notifs = window.state.notifications[cedula] || [];
+            notifs.forEach(n => n.leida = true);
+            window.fb.set(window.fb.ref(window.fb.db, 'notifications/' + cedula), notifs).then(() => window.render());
+        };
+
+        function renderWorkerNotifications(w) {
+            const notifs = window.state.notifications[w.cedula] || [];
+            return `
+                <div class="space-y-4 pb-6">
+                    <div class="flex justify-between items-center px-1"><h2 class="text-base font-black title-gradient">Notificaciones</h2>${notifs.length > 0 ? `<button onclick="window.marcarNotificacionesLeidas('${w.cedula}')" class="text-[11px] font-bold label-secondary hover:underline">Marcar leídas</button>` : ''}</div>
+                    <div class="space-y-2.5">
+                        ${notifs.length === 0 ? `<p class="opacity-70 text-xs px-1">No hay notificaciones.</p>` : notifs.map(n => `<div class="glass-panel p-4 rounded-2xl space-y-1 ${n.leida ? 'opacity-75' : 'ring-1 ring-current/30'}"><p class="font-black text-xs">${n.titulo}</p><p class="text-[11px] opacity-80">${n.mensaje}</p><span class="text-[9px] opacity-65 font-mono block">${n.fecha}</span></div>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWorkerProfile(w) {
+            return `
+                <div class="space-y-3.5 pb-6">
+                    <h2 class="text-base font-black px-1 title-gradient">Perfil & Apariencia</h2>
+                    <div class="glass-panel p-4 rounded-3xl shadow-xl cyber-glow-blue space-y-2">
+                        <p class="text-[10px] font-extrabold uppercase tracking-wider label-secondary">Tema de Color</p>
+                        ${renderThemeSelectorBar()}
+                    </div>
+                    <div class="glass-panel p-5 rounded-3xl shadow-xl cyber-glow">
+                        <form onsubmit="window.handleUpdateProfile(event, '${w.cedula}')" class="space-y-2.5">
+                            <div><label class="text-[10px] label-primary uppercase font-bold">Cédula</label><input type="text" disabled value="${w.cedula}" class="w-full mt-1 neon-input opacity-70 rounded-xl px-3 py-2.5 text-xs font-mono"></div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="text-[10px] label-secondary uppercase font-bold">Nombre</label><input type="text" id="upNombre" value="${w.nombre}" required class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs"></div>
+                                <div><label class="text-[10px] label-primary uppercase font-bold">Apellido</label><input type="text" id="upApellido" value="${w.apellido}" required class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs"></div>
+                            </div>
+                            <div><label class="text-[10px] label-secondary uppercase font-bold">Teléfono</label><input type="text" id="upTelefono" value="${w.telefono}" required class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs"></div>
+                            <div><label class="text-[10px] label-primary uppercase font-bold">Correo</label><input type="email" id="upEmail" value="${w.email}" required class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs"></div>
+                            <div><label class="text-[10px] label-secondary uppercase font-bold">Nueva Contraseña</label><input type="password" id="upPassword" minlength="6" placeholder="Dejar en blanco para mantener" class="w-full mt-1 neon-input rounded-xl px-3 py-2.5 text-xs"></div>
+                            <button type="submit" class="w-full py-3.5 neon-gradient-btn font-black text-xs rounded-xl shadow-lg mt-1">GUARDAR CAMBIOS</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.handleUpdateProfile = function(e, cedula) {
+            e.preventDefault();
+            const workerKey = getWorkerFirebaseRefKey(cedula);
+            const worker = getActiveWorkerData();
+            worker.nombre = document.getElementById('upNombre').value.trim();
+            worker.apellido = document.getElementById('upApellido').value.trim();
+            worker.telefono = document.getElementById('upTelefono').value.trim();
+            worker.email = document.getElementById('upEmail').value.trim();
+            const newPass = document.getElementById('upPassword').value;
+            if (newPass) worker.password = newPass;
+            window.fb.set(window.fb.ref(window.fb.db, 'workers/' + workerKey), worker).then(() => { window.showToast('Perfil actualizado.', 'success'); window.render(); });
+        };
+
+        initFirebaseListeners();
+    </script>
+</body>
+</html>
